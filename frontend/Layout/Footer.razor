@@ -1,0 +1,45 @@
+@using MudBlazor
+
+<MudPaper Elevation="0" Class="mt-auto bg-transparent w-100">
+    <MudDivider Class="mb-6 mx-auto" Style="max-width: 800px; opacity: 0.2; background-color: white;" />
+
+    <div class="text-center pb-8">
+        <MudText Typo="Typo.body2" Style="color: #9ca3af;" Class="mb-2">
+            © 2026 GenStickman. All rights reserved.
+        </MudText>
+
+        <div class="d-flex justify-center align-center flex-wrap gap-4 mt-3">
+            <MudStack Row="true" Spacing="4" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+                
+                <!-- Facebook Link -->
+                <MudText Typo="Typo.body2" Style="color: #9ca3af; display: flex; align-items: center; gap: 8px;">
+                    <MudIcon Icon="@Icons.Custom.Brands.Facebook" Size="Size.Small" Color="Color.Inherit" />
+                    <span>Fanpage:</span>
+                    <MudLink Href="https://www.facebook.com/profile.php?id=61589174177666" 
+                            Target="_blank"
+                            Style="color: #10b981; font-weight: bold;" 
+                            Underline="Underline.Hover">
+                        GenStickman
+                    </MudLink>
+                </MudText>
+
+                <!-- Zalo Link -->
+                <MudText Typo="Typo.body2" Style="color: #9ca3af; display: flex; align-items: center; gap: 8px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Chat" Size="Size.Small" Color="Color.Inherit" />
+                    <span>Zalo:</span>
+                    <MudLink Href="https://zalo.me/0337201554" 
+                            Target="_blank"
+                            Style="color: #10b981; font-weight: bold;" 
+                            Underline="Underline.Hover">
+                        0337201554
+                    </MudLink>
+                </MudText>
+
+            </MudStack>
+            
+            <!-- <MudText Typo="Typo.body2" Style="color: #9ca3af;">
+                Group: <MudLink Href="#" Style="color: #10b981; font-weight: bold;" Underline="Underline.None">ccc</MudLink>
+            </MudText> -->
+        </div>
+    </div>
+</MudPaper>

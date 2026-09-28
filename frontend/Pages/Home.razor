@@ -1,0 +1,143 @@
+﻿@page "/"
+@using MudBlazor
+
+<PageTitle>Trang chủ | Nền tảng Tạo Video AI Stickman </PageTitle>
+
+@* ═══════════════════════════════════════════════════════════════════
+   1. HERO SECTION
+   ═══════════════════════════════════════════════════════════════════ *@
+<div class="hero-section d-flex align-center justify-center pt-16 pb-12">
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="text-center">
+        <MudChip T="string" Color="Color.Success" Variant="Variant.Outlined" Class="mb-6 fw-bold px-4 py-1 hero-chip">
+            Version 0.4.1
+        </MudChip>
+
+        <MudText Typo="Typo.h2" Class="fw-bold mb-4 hero-title">
+            Tự động hóa toàn bộ <br />
+            <span class="text-gradient">Quy trình sản xuất Video</span>
+        </MudText>
+
+        <MudText Typo="Typo.h6" Color="Color.Secondary" Class="mb-10 px-4 fw-normal" Style="line-height: 1.6;">
+            Biến một dòng ý tưởng thành video hoàn chỉnh với kịch bản, hình ảnh và giọng nói AI truyền cảm.
+        </MudText>
+
+        <div class="d-flex justify-center gap-4 flex-wrap mb-12">
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       Size="Size.Large"
+                       Href="/studio"
+                       EndIcon="@Icons.Material.Filled.ArrowForward"
+                       Class="rounded-pill px-8 py-3 fw-bold shadow-lg btn-glow">
+                Bắt đầu tạo Video
+            </MudButton>
+            <MudButton Variant="Variant.Outlined"
+                       Color="Color.Default"
+                       Size="Size.Large"
+                       Href="/pricing"
+                       Class="rounded-pill px-8 py-3 fw-bold bg-surface">
+                Xem Bảng giá
+            </MudButton>
+        </div>
+
+        <MudContainer MaxWidth="MaxWidth.Large" Class="pa-0 mt-8">
+            <div class="hero-video-wrapper" @onclick="PlayVideo">
+                <video @ref="_videoElement"
+                       class="hero-video"
+                       poster="@_videoPoster"
+                       preload="metadata"
+                       playsinline
+                       controls="@_isPlaying">
+                    <source src="@_videoSource" type="video/mp4" />
+                    Trình duyệt của bạn không hỗ trợ thẻ video.
+                </video>
+
+                @if (!_isPlaying)
+                {
+                    <div class="play-overlay">
+                        <div class="play-button">
+                            <MudIcon Icon="@Icons.Material.Filled.PlayArrow"
+                                     Class="play-icon" />
+                        </div>
+                        <MudText Typo="Typo.body1" Class="play-label mt-3">
+                            Xem video hướng dẫn
+                        </MudText>
+                    </div>
+                }
+            </div>
+        </MudContainer>
+    </MudContainer>
+</div>
+
+@* ═══════════════════════════════════════════════════════════════════
+   2. FEATURES & BENEFITS
+   ═══════════════════════════════════════════════════════════════════ *@
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-16">
+    <div class="text-center mb-16">
+        <MudText Typo="Typo.h4" Class="fw-bold mb-2">Vũ khí tối thượng cho nhà sáng tạo</MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary">
+            Giải phóng bạn khỏi những phần mềm edit phức tạp và tốn thời gian.
+        </MudText>
+    </div>
+
+    <MudGrid Spacing="6" Justify="Justify.Center">
+
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Class="workflow-card pa-8 h-100 text-center bg-transparent border-dashed">
+                <div class="icon-wrapper bg-primary-light mb-6 mx-auto">
+                    <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Color="Color.Primary" Size="Size.Large" />
+                </div>
+                <MudText Typo="Typo.h6" Class="fw-bold mb-2">Cày kênh không cần lộ mặt</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Ra hàng loạt video mỗi ngày phủ sóng YouTube, TikTok, Facebook Reels — không máy quay, không studio, không lo bị nhận ra ngoài đời. Mở thêm dòng thu nhập tay trái ngay khi đang đi làm hoặc đi học.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Class="workflow-card pa-8 h-100 text-center bg-transparent border-dashed">
+                <div class="icon-wrapper bg-warning-light mb-6 mx-auto">
+                    <MudIcon Icon="@Icons.Material.Filled.Brush" Color="Color.Warning" Size="Size.Large" />
+                </div>
+                <MudText Typo="Typo.h6" Class="fw-bold mb-2">Bắt trend Stickman triệu view</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Đu trend kể chuyện (Storytelling) đang phủ sóng feed người Việt với phong cách Stickman gây nghiện. Hệ thống tự phác họa nhân vật, lên màu và diễn biểu cảm theo đúng mạch cảm xúc của kịch bản.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+        <MudItem xs="12" sm="4">
+            <MudPaper Elevation="0" Class="workflow-card pa-8 h-100 text-center bg-transparent border-dashed">
+                <div class="icon-wrapper bg-success-light mb-6 mx-auto">
+                    <MudIcon Icon="@Icons.Material.Filled.RocketLaunch" Color="Color.Success" Size="Size.Large" />
+                </div>
+                <MudText Typo="Typo.h6" Class="fw-bold mb-2">Gõ ý tưởng — nhận video</MudText>
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Tạm biệt cảnh ngồi cả đêm vật lộn với CapCut, Premiere. Chỉ cần một dòng ý tưởng, hệ thống trả về file MP4 hoàn chỉnh sẵn sàng up YouTube, TikTok trong vài phút — kể cả khi bạn chưa từng dựng video bao giờ.
+                </MudText>
+            </MudPaper>
+        </MudItem>
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    // ─── CẤU HÌNH NGUỒN VIDEO ───
+    private const string _videoSource = "/videos/tutorial.mp4";
+    private const string _videoPoster = "/videos/tutorial-poster.jpg";
+
+    private ElementReference _videoElement;
+
+    private bool _isPlaying;
+
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+
+    private async Task PlayVideo()
+    {
+        if (_isPlaying) return; 
+
+        _isPlaying = true;
+        StateHasChanged(); 
+
+        await JS.InvokeVoidAsync("playVideoElement", _videoElement);
+    }
+}

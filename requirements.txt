@@ -1,0 +1,56 @@
+# === Web Framework ===
+fastapi==0.135.2
+uvicorn[standard]==0.42.0
+gunicorn==23.0.0
+slowapi==0.1.9
+
+# === Validation ===
+pydantic[email]==2.12.5
+pydantic-settings==2.14.0
+email-validator==2.3.0
+
+# === Auth ===
+PyJWT==2.12.1
+passlib==1.7.4
+google-auth==2.49.1
+
+# === Database ===
+SQLAlchemy==2.0.48
+asyncpg==0.31.0
+psycopg[binary]==3.2.3
+alembic==1.18.4
+
+# === Cache / Queue ===
+redis==7.4.0
+
+# === HTTP ===
+httpx==0.28.1
+requests==2.32.5
+respx==0.23.1
+
+# === AI / ML ===
+anthropic==0.96.0
+google-genai==1.67.0
+fal_client==1.0.0
+faster-whisper==1.2.1
+
+# === Voice ===
+# (vbee gọi qua httpx, không cần SDK)
+
+# === Media ===
+moviepy==2.2.1
+Pillow==11.3.0
+protobuf==5.29.6
+matplotlib==3.10.9
+
+# === Payment ===
+payos==1.1.0
+
+# === Utils ===
+aiofiles==25.1.0
+aiolimiter==1.2.1
+python-dotenv==1.2.2
+tenacity==9.1.4
+
+# === Test ===
+pytest==9.0.3

@@ -1,0 +1,13 @@
+@* AuthGuardRoute.razor *@
+@using MudBlazor
+
+@if (!_isReady)
+{
+    <div style="height:100vh; display:flex; align-items:center; justify-content:center;">
+        <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+    </div>
+}
+else
+{
+    <RouteView RouteData="@RouteData" DefaultLayout="@typeof(MainLayout)" />
+}

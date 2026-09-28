@@ -1,0 +1,252 @@
+/* File: wwwroot/css/app.css */
+
+/* =====================================================
+   app.css — GenStickmanStudio
+   Base styles và component styles only.
+   Media queries → responsive.css
+   ===================================================== */
+
+/* ---------- 1. BASE RESET ---------- */
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+    overflow-x: clip;
+    width: 100%;
+}
+
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    width: 100%;
+    max-width: 100vw;
+}
+
+body.drawer-open {
+    overflow: hidden !important;
+    height: 100dvh !important;
+}
+
+h1:focus { outline: none; }
+
+a, .btn-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+code { color: #c02d76; }
+
+/* ---------- 2. LAYOUT CORE ---------- */
+.page-wrapper {
+    padding: 0.75rem;
+    min-height: calc(100vh - 64px);
+    display: flex;
+    flex-direction: column;
+}
+
+.page-content {
+    flex: 1;
+    width: 100%;
+    max-width: 100%;
+}
+
+/* ---------- 3. APPBAR ---------- */
+.saas-appbar {
+    max-width: 100vw;
+    overflow: hidden;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--mud-palette-divider) !important;
+    transition: background-color 0.3s ease;
+}
+
+/* ---------- 4. SIDEBAR ---------- */
+.saas-sidebar {
+    transition: width 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    border-right: 1px solid var(--mud-palette-divider) !important;
+}
+
+/* ---------- 5. NAV MENU ---------- */
+.nav-item {
+    border-radius: 8px;
+    margin: 2px 6px;
+    transition: background-color 0.15s ease;
+}
+
+.mud-nav-link.active {
+    background-color: rgba(65, 105, 225, 0.1) !important;
+    color: var(--mud-palette-primary) !important;
+    font-weight: 600 !important;
+}
+
+.mud-nav-link.active .mud-nav-link-icon-wrapper {
+    color: var(--mud-palette-primary) !important;
+}
+
+.mud-nav-link:not(.active):hover {
+    background-color: rgba(65, 105, 225, 0.06) !important;
+}
+
+.mud-nav-link,
+.mud-nav-link:hover,
+.mud-nav-link:focus {
+    text-decoration: none !important;
+}
+
+.mud-nav-link .mud-nav-link-text {
+    text-decoration: none !important;
+}
+
+.mud-drawer-mini .mud-nav-link {
+    justify-content: center;
+}
+
+.mud-drawer-content {
+    overflow-x: hidden;
+}
+
+/* ---------- 6. USER MENU DROPDOWN ---------- */
+.user-menu-header { min-width: 220px; }
+
+/* ---------- 7. NAV DRAWER WRAPPER ---------- */
+.nav-drawer-wrapper {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.nav-divider {
+    flex-shrink: 0;
+    height: 1px;
+    margin: 0;
+    border: none;
+    background-color: var(--mud-palette-divider);
+}
+
+.nav-drawer-wrapper .mud-navmenu {
+    flex-shrink: 1;
+    overflow-y: visible;
+    overflow-x: hidden;
+    min-height: 0;
+}
+
+.nav-user-section {
+    flex-shrink: 0;
+    padding: 12px 16px !important;
+}
+
+.nav-footer {
+    flex-shrink: 0;
+    padding: 12px 16px !important;
+}
+
+.mud-drawer-mini .nav-user-section,
+.mud-drawer-mini .nav-divider,
+.mud-drawer-mini .nav-footer {
+    display: none !important;
+}
+
+/* ---------- 8. MAIN CONTENT ---------- */
+.saas-main-content {
+    overflow-x: clip;
+    max-width: 100%;
+    padding-top: var(--mud-appbar-height);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ---------- 9. MOBILE DRAWER FULLSCREEN ---------- */
+.saas-sidebar--mobile,
+.saas-sidebar--mobile.mud-drawer,
+.saas-sidebar--mobile.mud-drawer-fixed,
+.saas-sidebar--mobile.mud-drawer-md,
+.saas-sidebar--mobile.mud-drawer-temporary {
+    --mud-drawer-width: 100vw !important;
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 100vw !important;
+    top: 0 !important;
+    height: 100dvh !important;
+    z-index: 1400 !important;
+    overflow: hidden !important;
+}
+
+.saas-sidebar--mobile > .mud-drawer-content {
+    width: 100vw !important;
+    max-width: 100vw !important;
+    min-width: 100vw !important;
+    height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+}
+
+.saas-sidebar--mobile > .mud-drawer-content::-webkit-scrollbar {
+    display: none !important;
+}
+
+/* ---------- 10. NAV GRID (mobile) ---------- */
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 12px 16px !important;
+}
+
+.nav-grid-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px 8px;
+    border-radius: 12px;
+    background-color: var(--mud-palette-surface);
+    border: 1px solid var(--mud-palette-divider);
+    cursor: pointer;
+    text-decoration: none !important;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    color: var(--mud-palette-text-secondary);
+    -webkit-tap-highlight-color: transparent;
+}
+
+.nav-grid-item:hover {
+    background-color: rgba(65, 105, 225, 0.06);
+    border-color: rgba(65, 105, 225, 0.2);
+}
+
+.nav-grid-item--active {
+    background-color: rgba(65, 105, 225, 0.12) !important;
+    border-color: rgba(65, 105, 225, 0.4) !important;
+    color: var(--mud-palette-primary) !important;
+}
+
+.nav-grid-item--active .mud-icon-root {
+    color: var(--mud-palette-primary) !important;
+}
+
+.nav-grid-item__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-grid-item__label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.3;
+    word-break: break-word;
+}
+
+/* ---------- 11. ANIMATIONS ---------- */
+.fade-in {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

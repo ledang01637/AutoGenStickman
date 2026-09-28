@@ -1,0 +1,26 @@
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+
+COPY frontend/*.csproj ./frontend/
+RUN dotnet restore ./frontend/
+
+COPY frontend/ ./frontend/
+
+# Override appsettings với production config
+RUN cp ./frontend/wwwroot/appsettings.Production.json ./frontend/wwwroot/appsettings.json
+
+RUN dotnet publish ./frontend/ \
+    -c Release \
+    -o /app/publish \
+    --nologo
+
+FROM nginx:alpine AS runtime
+
+COPY nginx/nginx.conf /etc/nginx/nginx.conf
+COPY nginx/maintenance.conf /etc/nginx/maintenance.conf
+COPY nginx/certs /etc/nginx/certs
+COPY nginx/html/maintenance.html /usr/share/nginx/html/maintenance.html
+COPY --from=build /app/publish/wwwroot /usr/share/nginx/html
+
+EXPOSE 80 443
+CMD ["nginx", "-g", "daemon off;"]

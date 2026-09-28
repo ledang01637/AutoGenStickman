@@ -1,0 +1,157 @@
+@page "/payment/result"
+@using MudBlazor
+
+<PageTitle>Kết quả thanh toán | Stickman AI</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="py-16">
+    <MudPaper Elevation="0" Class="pa-12 text-center rounded-xl border-dashed">
+
+        @* ─── STATE: ĐANG POLL ─── *@
+        @if (_state == ResultState.Polling)
+        {
+            <div class="mb-6">
+                <MudProgressCircular Color="Color.Primary"
+                                     Size="Size.Large"
+                                     Indeterminate="true" />
+            </div>
+            <MudText Typo="Typo.h5" Class="fw-bold mb-2">
+                Đang xác nhận thanh toán...
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                Hệ thống đang đối soát giao dịch với cổng PayOS. Vui lòng không đóng trang.
+            </MudText>
+            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                Lần thử: @_attempts / @_maxAttempts
+            </MudText>
+        }
+
+        @* ─── STATE: THÀNH CÔNG ─── *@
+        else if (_state == ResultState.Success)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.CheckCircle"
+                     Color="Color.Success"
+                     Style="font-size: 5rem;"
+                     Class="mb-4" />
+            <MudText Typo="Typo.h4" Class="fw-bold mb-2">
+                Thanh toán thành công!
+            </MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-8">
+                Bắt đầu tạo video ngay bây giờ nhé!
+            </MudText>
+            <div class="d-flex justify-center gap-3 flex-wrap">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           OnClick="GoHome"
+                           Class="rounded-pill px-8 fw-bold">
+                    Về trang chủ
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Default"
+                           Size="Size.Large"
+                           Href="/studio"
+                           Class="rounded-pill px-8 fw-bold">
+                    Tạo video ngay
+                </MudButton>
+            </div>
+        }
+
+        @* ─── STATE: USER HỦY ─── *@
+        else if (_state == ResultState.Cancelled)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.Cancel"
+                     Color="Color.Warning"
+                     Style="font-size: 5rem;"
+                     Class="mb-4" />
+            <MudText Typo="Typo.h4" Class="fw-bold mb-2">
+                Giao dịch đã hủy
+            </MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-8">
+                Bạn đã hủy thanh toán. Không có khoản phí nào được tính.
+            </MudText>
+            <div class="d-flex justify-center gap-3 flex-wrap">
+                <MudButton Variant="Variant.Filled"
+                        Color="Color.Primary"
+                        Size="Size.Large"
+                        OnClick="GoBack"
+                        Class="rounded-pill px-8 fw-bold">
+                    Quay lại
+                </MudButton>
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Default"
+                           Size="Size.Large"
+                           OnClick="GoHome"
+                           Class="rounded-pill px-8 fw-bold">
+                    Về trang chủ
+                </MudButton>
+            </div>
+        }
+
+        @* ─── STATE: THẤT BẠI ─── *@
+        else if (_state == ResultState.Failed)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.ErrorOutline"
+                     Color="Color.Error"
+                     Style="font-size: 5rem;"
+                     Class="mb-4" />
+            <MudText Typo="Typo.h4" Class="fw-bold mb-2">
+                Thanh toán không thành công
+            </MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-8">
+                @_errorMessage
+            </MudText>
+            <div class="d-flex justify-center gap-3 flex-wrap">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           OnClick="GoBack"
+                           Class="rounded-pill px-8 fw-bold">
+                    Thử lại
+                </MudButton>
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Default"
+                           Size="Size.Large"
+                           OnClick="GoHome"
+                           Class="rounded-pill px-8 fw-bold">
+                    Về trang chủ
+                </MudButton>
+            </div>
+        }
+
+        @* ─── STATE: TIMEOUT ─── *@
+        else if (_state == ResultState.Timeout)
+        {
+            <MudIcon Icon="@Icons.Material.Filled.HourglassEmpty"
+                     Color="Color.Info"
+                     Style="font-size: 5rem;"
+                     Class="mb-4" />
+            <MudText Typo="Typo.h4" Class="fw-bold mb-2">
+                Đang chờ xác nhận từ ngân hàng
+            </MudText>
+            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-2">
+                Giao dịch của bạn đã được ghi nhận nhưng cần thêm thời gian để xác nhận.
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-8">
+                Mã đơn hàng: <strong>@_orderCode</strong>
+            </MudText>
+            <div class="d-flex justify-center gap-3 flex-wrap">
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           Size="Size.Large"
+                           OnClick="CheckAgain"
+                           StartIcon="@Icons.Material.Filled.Refresh"
+                           Class="rounded-pill px-8 fw-bold">
+                    Kiểm tra lại
+                </MudButton>
+                <MudButton Variant="Variant.Outlined"
+                           Color="Color.Default"
+                           Size="Size.Large"
+                           OnClick="GoHome"
+                           Class="rounded-pill px-8 fw-bold">
+                    Về trang chủ
+                </MudButton>
+            </div>
+        }
+
+    </MudPaper>
+</MudContainer>

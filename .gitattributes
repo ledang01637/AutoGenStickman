@@ -1,0 +1,8 @@
+# Buộc tất cả file text dùng LF (Unix style) trong Git
+* text=auto eol=lf
+
+# Đặc biệt cho file .NET / Razor / C# 
+*.cs text eol=lf
+*.razor text eol=lf
+*.cshtml text eol=lf
+*.xaml text eol=lf

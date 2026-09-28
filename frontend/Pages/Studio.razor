@@ -1,0 +1,541 @@
+@* File: Pages/Studio.razor *@
+@page "/studio"
+
+<div class="gs-studio-wrapper">
+    <div class="gs-studio-inner">
+
+        @* ══════════════════ HEADER ══════════════════ *@
+        <div class="gs-studio-header">
+            <div class="gs-brand-mark">
+                <div class="gs-brand-icon">🎬</div>
+                <div class="gs-brand-text">
+                    <h1 class="gs-title">AI Studio</h1>
+                    <p class="gs-subtitle">Biến ý tưởng thành video chuyên nghiệp</p>
+                </div>
+            </div>
+            <div class="gs-header-actions">
+                @if (_isProcessing)
+                {
+                    <span class="gs-job-badge">
+                        Job: <code>@_jobId[..Math.Min(8, _jobId.Length)]…</code>
+                    </span>
+                }
+
+                <span class="gs-plan-badge" style="background: @PlanFeatures.GetPlanColor(CurrentPlan);">
+                    @switch (CurrentPlan?.ToUpper())
+                    {
+                        case "ULTRA": <span>👑</span> break;
+                        case "PRO": <span>⚡</span> break;
+                        case "TRIAL": <span>✨</span> break;
+                        default: <span>🆓</span> break;
+                    }
+                    <span class="gs-plan-name">@PlanFeatures.GetDisplayName(CurrentPlan!)</span>
+                </span>
+
+                <span class="gs-credit-chip">
+                    <span class="gs-credit-dot"></span>
+                    <strong>@_userCredits</strong> <span class="gs-text-muted">Credits</span>
+                </span>
+            </div>
+        </div>
+
+        @* ════════════════════════════════════════════════════════════
+           STATE A — INPUT FORM (2 CỘT: form + sidebar sticky)
+           ════════════════════════════════════════════════════════════ *@
+        @if (!_isProcessing && !_isCompleted && !_isError)
+        {
+            <div class="gs-layout">
+
+                @* ───────────── MAIN COLUMN ───────────── *@
+                <div class="gs-main-col">
+                    <div class="gs-studio-card">
+                        <div class="gs-card-topbar"></div>
+                        <div class="gs-card-body">
+
+                            @* ── Topic ── *@
+                            <div class="gs-field-group">
+                                <label class="gs-field-label">📝 Chủ đề video</label>
+                                <MudTextField T="string"
+                                    Value="_topic"
+                                    ValueChanged="OnTopicChanged"
+                                    Immediate="true"
+                                    Variant="Variant.Outlined"
+                                    Margin="Margin.Dense"
+                                    Placeholder="Ví dụ: Kể về lịch sử cà phê Việt Nam từ thế kỷ 19..."
+                                    Lines="3"
+                                    Counter="500"
+                                    MaxLength="500"
+                                    Disabled="_isSubmitting"
+                                    FullWidth="true"
+                                    Error="@(_formValidated && string.IsNullOrWhiteSpace(_topic))"
+                                    ErrorText="Vui lòng nhập chủ đề video." />
+                            </div>
+
+                            @* ── Duration Slider ── *@
+                            <div class="gs-duration-field">
+                                <label class="gs-field-label">⏱️ Thời lượng video</label>
+                                <MudSlider T="int"
+                                    Value="DurationIndex"
+                                    ValueChanged="OnDurationIndexChanged"
+                                    Min="0"
+                                    Max="@Math.Max(0, AllowedDurations.Count - 1)"
+                                    Step="1"
+                                    TickMarks="true"
+                                    TickMarkLabels="DurationTickLabels"
+                                    Color="Color.Primary"
+                                    Class="gs-duration-slider"
+                                    Disabled="_isSubmitting" />
+                            </div>
+
+                            @* ── Tone ── *@
+                            <div class="gs-field-group mb-0">
+                                <label class="gs-field-label">🎭 Tông điệu</label>
+                                <div class="gs-tone-select">
+                                    <MudSelect T="string"
+                                        @bind-Value="_selectedTone"
+                                        Variant="Variant.Outlined"
+                                        Margin="Margin.Dense"
+                                        FullWidth="true"
+                                        Disabled="_isSubmitting">
+                                        @foreach (var tone in StudioOptions.Tones)
+                                        {
+                                            var locked = PlanFeatures.IsToneLocked(tone.Value, CurrentPlan);
+                                            <MudSelectItem T="string" Value="@tone.Value" Disabled="@locked">
+                                                <div class="select-item-rich">
+                                                    <div class="select-item-main">
+                                                        <span class="select-item-label">@tone.Emoji @tone.Label</span>
+                                                        @if (locked)
+                                                        {
+                                                            <span class="gs-feature-lock ml-2">
+                                                                🔒 @PlanFeatures.GetRequiredPlanForTone(tone.Value)
+                                                            </span>
+                                                        }
+                                                    </div>
+                                                    <div class="select-item-desc">
+                                                        <span class="select-item-short">@tone.ShortDesc</span>
+                                                    </div>
+                                                </div>
+                                            </MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </div>
+                            </div>
+
+                            @* ── ADVANCED PANEL ── *@
+                            <div class="gs-advanced-wrap mt-4">
+                                <button class="gs-advanced-toggle"
+                                        @onclick="() => _showAdvanced = !_showAdvanced"
+                                        type="button">
+                                    <span class="gs-flex-center gap-2">
+                                        <span>⚙️ Tuỳ chỉnh nâng cao</span>
+                                        @if (!HasAnyAdvancedFeature) { <span class="gs-lock-badge">🔒 Nâng cấp để mở khoá</span> }
+                                    </span>
+                                    <span class="gs-chevron">@(_showAdvanced ? "▲" : "▼")</span>
+                                </button>
+
+                                @if (_showAdvanced)
+                                {
+                                    <div class="gs-advanced-panel">
+
+                                        @* ── Main Character ── *@
+                                        <div class="gs-character-section gs-field-group @(CanCustomizeCharacter ? "" : "gs-locked-field")">
+                                            <div class="gs-flex-between mb-1">
+                                                <label class="gs-field-label mb-0">🎭 Nhân vật chính (sẽ xuất hiện trong mọi cảnh)</label>
+                                                @if (!CanCustomizeCharacter) { <span class="gs-feature-lock">🔒 Nâng cấp để dùng</span> }
+                                            </div>
+                                            <MudTextField T="string"
+                                                        @bind-Value="_mainCharacter"
+                                                        Immediate="true"
+                                                        Variant="Variant.Outlined"
+                                                        Margin="Margin.Dense"
+                                                        Lines="2"
+                                                        Placeholder="Ví dụ: a stickman wearing a tie and round glasses..."
+                                                        Disabled="@(_isSubmitting || !CanCustomizeCharacter)"
+                                                        FullWidth="true" />
+                                            @if (!CanCustomizeCharacter)
+                                            {
+                                                <div class="gs-locked-overlay" @onclick="OnCharacterFieldClick"></div>
+                                            }
+                                        </div>
+
+                                        @* ── SETTINGS LIST: Pace / Voice / Structure / Ratio ── *@
+                                        <span class="gs-subsection-label">Tuỳ chỉnh nội dung</span>
+                                        <div class="gs-settings-card">
+                                            <div class="gs-settings-list">
+
+                                                @* ── Pace ── *@
+                                                <div class="gs-settings-row @(CanCustomizePace ? "" : "gs-locked-field")">
+                                                    <span class="gs-settings-row__label">
+                                                        Nhịp điệu
+                                                        @if (!CanCustomizePace) { <span class="gs-feature-lock">🔒 PRO</span> }
+                                                    </span>
+                                                    <div class="gs-settings-row__control">
+                                                        <MudSelect T="string"
+                                                            Value="_selectedPace"
+                                                            ValueChanged="OnPaceChanged"
+                                                            Variant="Variant.Text"
+                                                            Margin="Margin.Dense"
+                                                            FullWidth="true"
+                                                            Disabled="@(_isSubmitting || !CanCustomizePace)">
+                                                            @foreach (var pace in StudioOptions.Paces)
+                                                            {
+                                                                var allowed = PlanFeatures.GetAllowedPaces(CurrentPlan).Contains(pace.Value);
+                                                                <MudSelectItem T="string" Value="@pace.Value" Disabled="@(!allowed)">
+                                                                    <div class="select-item-rich">
+                                                                        <div class="gs-flex-between" style="width:100%">
+                                                                            <span class="select-item-label">@pace.Label</span>
+                                                                            @if (!allowed)
+                                                                            {
+                                                                                <span class="gs-feature-lock ml-2">
+                                                                                    🔒 @PlanFeatures.GetRequiredPlanForPace(pace.Value)
+                                                                                </span>
+                                                                            }
+                                                                        </div>
+                                                                        <div class="select-item-desc">
+                                                                            <span class="select-item-short">@pace.ShortDesc</span>
+                                                                            <span class="select-item-dot">·</span>
+                                                                            <span class="select-item-detail">@pace.Detail</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    </div>
+                                                    @if (!CanCustomizePace)
+                                                    {
+                                                        <div class="gs-locked-overlay" @onclick="OnPaceFieldClick"></div>
+                                                    }
+                                                </div>
+
+                                                @* ── Voice ── *@
+                                                <div class="gs-settings-row @(CanCustomizeVoice ? "" : "gs-locked-field")">
+                                                    <span class="gs-settings-row__label">
+                                                        Giọng đọc
+                                                        @if (!CanCustomizeVoice) { <span class="gs-feature-lock">🔒 BASIC</span> }
+                                                    </span>
+                                                    <div class="gs-settings-row__control">
+                                                        <MudSelect T="string"
+                                                            @bind-Value="_selectedVoice"
+                                                            Variant="Variant.Text"
+                                                            Margin="Margin.Dense"
+                                                            FullWidth="true"
+                                                            Disabled="@(_isSubmitting || !CanCustomizeVoice)">
+                                                            @foreach (var s in StudioOptions.Voices)
+                                                            {
+                                                                var allowed = PlanFeatures.GetAllowedVoices(CurrentPlan).Contains(s.Value);
+                                                                <MudSelectItem T="string" Value="@s.Value" Disabled="@(!allowed)">
+                                                                    <div class="select-item-rich">
+                                                                        <div class="gs-flex-between" style="width:100%">
+                                                                            <span class="select-item-label">@s.Emoji @s.Label</span>
+                                                                            @if (!allowed)
+                                                                            {
+                                                                                <span class="gs-feature-lock ml-2">
+                                                                                    🔒 @PlanFeatures.GetRequiredPlanForVoice(s.Value)
+                                                                                </span>
+                                                                            }
+                                                                        </div>
+                                                                    </div>
+                                                                </MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    </div>
+                                                    @if (!CanCustomizeVoice)
+                                                    {
+                                                        <div class="gs-locked-overlay" @onclick="OnVoiceFieldClick"></div>
+                                                    }
+                                                </div>
+
+                                                @* ── Story Structure ── *@
+                                                <div class="gs-settings-row @(CanCustomizeStoryStructure ? "" : "gs-locked-field")">
+                                                    <span class="gs-settings-row__label">
+                                                        Cấu trúc
+                                                        @if (!CanCustomizeStoryStructure) { <span class="gs-feature-lock">🔒 BASIC</span> }
+                                                    </span>
+                                                    <div class="gs-settings-row__control">
+                                                        <MudSelect T="string"
+                                                            @bind-Value="_selectedStoryStructure"
+                                                            Variant="Variant.Text"
+                                                            Margin="Margin.Dense"
+                                                            FullWidth="true"
+                                                            Disabled="@(_isSubmitting || !CanCustomizeStoryStructure)">
+                                                            @foreach (var s in StudioOptions.StoryStructures)
+                                                            {
+                                                                var allowed = PlanFeatures.GetAllowedStructures(CurrentPlan).Contains(s.Value);
+                                                                <MudSelectItem T="string" Value="@s.Value" Disabled="@(!allowed)">
+                                                                    <div class="select-item-rich">
+                                                                        <div class="gs-flex-between" style="width:100%">
+                                                                            <span class="select-item-label">@s.Label</span>
+                                                                            @if (!allowed)
+                                                                            {
+                                                                                <span class="gs-feature-lock ml-2">
+                                                                                    🔒 @PlanFeatures.GetRequiredPlanForStructure(s.Value)
+                                                                                </span>
+                                                                            }
+                                                                        </div>
+                                                                        <div class="select-item-desc">
+                                                                            <span class="select-item-short">@s.ShortDesc</span>
+                                                                            <span class="select-item-dot">·</span>
+                                                                            <span class="select-item-detail">@s.Detail</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    </div>
+                                                    @if (!CanCustomizeStoryStructure)
+                                                    {
+                                                        <div class="gs-locked-overlay" @onclick="OnStoryStructureFieldClick"></div>
+                                                    }
+                                                </div>
+
+                                                @* ── Ratio ── *@
+                                                <div class="gs-settings-row">
+                                                    <span class="gs-settings-row__label">Tỉ lệ</span>
+                                                    <div class="gs-settings-row__control">
+                                                        <MudSelect T="string"
+                                                            @bind-Value="_selectedRatio"
+                                                            Variant="Variant.Text"
+                                                            Margin="Margin.Dense"
+                                                            FullWidth="true"
+                                                            Disabled="_isSubmitting">
+                                                            @foreach (var s in StudioOptions.Ratios)
+                                                            {
+                                                                <MudSelectItem T="string" Value="@s.Value">
+                                                                    <div class="select-item-rich">
+                                                                        <div class="gs-flex-between" style="width:100%">
+                                                                            <span class="select-item-label">@s.Emoji @s.Label</span>
+                                                                        </div>
+                                                                    </div>
+                                                                </MudSelectItem>
+                                                            }
+                                                        </MudSelect>
+                                                    </div>
+                                                </div>
+
+                                                @* ── Best Model Toggle ── *@
+                                                <div class="gs-settings-row @(CanUseBestModel ? "" : "gs-locked-field")">
+                                                    <span class="gs-settings-row__label">
+                                                        Mô hình AI tốt nhất
+                                                        @if (!CanUseBestModel) { <span class="gs-feature-lock">🔒 PRO</span> }
+                                                    </span>
+                                                    <div class="gs-settings-row__control gs-settings-row__control--switch">
+                                                        <MudSwitch T="bool"
+                                                            @bind-Value="_useBestModel"
+                                                            Color="Color.Primary"
+                                                            Disabled="@(_isSubmitting || !CanUseBestModel)" />
+                                                    </div>
+                                                    @if (!CanUseBestModel)
+                                                    {
+                                                        <div class="gs-locked-overlay" @onclick="OnBestModelRowClick"></div>
+                                                    }
+                                                </div>
+
+                                                @* ── Colorful Images Toggle ── *@
+                                                <div class="gs-settings-row @(CanUseColorImage ? "" : "gs-locked-field")">
+                                                    <span class="gs-settings-row__label">
+                                                        Ảnh có màu sắc
+                                                        @if (!CanUseColorImage) { <span class="gs-feature-lock">🔒 PRO</span> }
+                                                    </span>
+                                                    <div class="gs-settings-row__control gs-settings-row__control--switch">
+                                                        <MudSwitch T="bool"
+                                                            @bind-Value="_useColorImage"
+                                                            Color="Color.Primary"
+                                                            Disabled="@(_isSubmitting || !CanUseColorImage)" />
+                                                    </div>
+                                                    @if (!CanUseColorImage)
+                                                    {
+                                                        <div class="gs-locked-overlay" @onclick="OnColorImageRowClick"></div>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div> @* /gs-settings-card *@
+                                    </div>
+                                }
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                @* ───────────── SIDEBAR (sticky desktop) ───────────── *@
+                <div class="gs-side-col">
+
+                    @* ── Cost Preview ── *@
+                    <div class="gs-cost-preview-card">
+                        <div class="gs-cost-preview-header">
+                            <span class="gs-cost-preview-label">💳 Chi phí ước tính</span>
+                            @if (_isEstimating) { <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Primary" /> }
+                        </div>
+
+                        @if (_costEstimate is not null)
+                        {
+                            <div class="gs-cost-preview-body">
+                                <div class="gs-cost-main">
+                                    <span class="gs-cost-number @(CanAffordEstimate ? "" : "insufficient")">@_costEstimate.CostCredits</span>
+                                    <span class="gs-cost-unit">Credits</span>
+                                </div>
+
+                                <div class="gs-cost-breakdown">
+                                    <div class="gs-cost-item">
+                                        <span class="gs-cost-icon">🎬</span>
+                                        <div>
+                                            <div class="gs-cost-value">@_costEstimate.TotalScenes</div>
+                                            <div class="gs-cost-label">Cảnh AI</div>
+                                        </div>
+                                    </div>
+                                    <div class="gs-cost-divider"></div>
+                                    <div class="gs-cost-item">
+                                        <span class="gs-cost-icon">⏱️</span>
+                                        <div>
+                                            <div class="gs-cost-value">@_costEstimate.Minutes phút</div>
+                                            <div class="gs-cost-label">Thời lượng</div>
+                                        </div>
+                                    </div>
+                                    <div class="gs-cost-divider"></div>
+                                    <div class="gs-cost-item">
+                                        <span class="gs-cost-icon">💰</span>
+                                        <div>
+                                            <div class="gs-cost-value @(CanAffordEstimate ? "" : "text-error")">@_costEstimate.CurrentBalance</div>
+                                            <div class="gs-cost-label">Số dư</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                @if (_costEstimate.PaceLocked)
+                                {
+                                    <div class="gs-cost-alert warning mt-3">
+                                        <span>⚠️</span>
+                                        <span>Nhịp điệu này chưa thuộc gói hiện tại. Đã tự động chuyển sang <strong>@_costEstimate.EffectivePace</strong>. <a href="/pricing" class="gs-cost-link">Nâng cấp →</a></span>
+                                    </div>
+                                }
+                                @if (!_costEstimate.CanAfford)
+                                {
+                                    <div class="gs-cost-alert error mt-3">
+                                        <span>❌</span>
+                                        <span>Thiếu <strong>@_costEstimate.MissingCredits Credits</strong>. <a href="/topup" class="gs-cost-link">Nạp thêm →</a></span>
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+
+                    @* ── Time Notice ── *@
+                    <div class="gs-time-notice">
+                        <span style="font-size:1rem; flex-shrink:0">⏳</span>
+                        <span><strong>Lưu ý:</strong> Quá trình tạo video thường mất vài phút — bạn có thể đóng tab, video sẽ xuất hiện trong Lịch Sử khi xong.</span>
+                    </div>
+
+                    @* ── Generate Button ── *@
+                    <button class="gs-btn-generate @(CanAffordEstimate ? "ready" : "disabled")"
+                            @onclick="StartGenerationAsync"
+                            disabled="@(_isSubmitting || _isEstimating || !CanAffordEstimate)">
+                        @if (_isSubmitting)
+                        {
+                            <MudProgressCircular Size="Size.Small" Indeterminate="true" Color="Color.Inherit" />
+                            <span>Đang gửi yêu cầu...</span>
+                        }
+                        else if (_isEstimating)
+                        {
+                            <span>Đang tính chi phí...</span>
+                        }
+                        else if (!CanAffordEstimate && _costEstimate is not null)
+                        {
+                            <span>💳 Thiếu @_costEstimate.MissingCredits Credits</span>
+                        }
+                        else
+                        {
+                            <span>🚀 Tạo Video Ngay</span>
+                            <span class="gs-cost-tag">-@CreditCost CR</span>
+                        }
+                    </button>
+                </div>
+
+            </div>
+        }
+
+        @* ════════════════════════════════════════════════════════════
+           STATE B — PROCESSING
+           ════════════════════════════════════════════════════════════ *@
+        @if (_isProcessing)
+        {
+            <div class="gs-studio-card">
+                <div class="gs-card-topbar processing"></div>
+                <div class="gs-card-body text-center">
+                    <h4 class="gs-title mb-1">AI đang kết xuất video của bạn</h4>
+                    <p class="gs-subtitle mb-4">Độ chính xác cao cần thêm thời gian — cảm ơn bạn đã kiên nhẫn.</p>
+                    <MudProgressLinear Value="@_progress" Striped="true" Size="Size.Large" Color="Color.Primary" Class="mb-4" Rounded="true" />
+                    <div class="gs-status-message">
+                        <span class="gs-status-dot"></span>
+                        <span>@_statusMessage</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* ════════════════════════════════════════════════════════════
+           STATE C — COMPLETED
+           ════════════════════════════════════════════════════════════ *@
+        @if (_isCompleted)
+        {
+            <div class="gs-studio-card">
+                <div class="gs-card-topbar" style="background: var(--mud-palette-success);"></div>
+                <div class="gs-card-body text-center">
+                    <div class="gs-title mb-2">🎉 Video đã sẵn sàng!</div>
+                    <div class="gs-subtitle mb-4">@_statusMessage</div>
+                    <div class="gs-flex-center justify-content-center gap-2 mb-3">
+                        <MudDialog @bind-Visible="_showPlayer">
+                            <DialogContent>
+                                <video controls autoplay style="width:100%; max-height:70vh;">
+                                    <source src="@_videoUrl" type="video/mp4" />
+                                </video>
+                            </DialogContent>
+                        </MudDialog>
+                        <button class="gs-btn-result primary" @onclick="@(() => _showPlayer = true)">🎬 Xem Video</button>
+                        <a href="@_videoUrl" download class="gs-btn-result secondary">⬇️ Tải Xuống</a>
+                    </div>
+                    <button class="gs-btn-reset" @onclick="ResetStudio">➕ Tạo video mới</button>
+                </div>
+            </div>
+        }
+
+        @* ════════════════════════════════════════════════════════════
+           STATE D — ERROR
+           ════════════════════════════════════════════════════════════ *@
+        @if (_isError)
+        {
+            <div class="gs-studio-card">
+                <div class="gs-card-topbar" style="background: var(--mud-palette-error);"></div>
+                <div class="gs-card-body text-center">
+                    <div class="gs-title mb-2" style="color: var(--mud-palette-error);">😕 Đã xảy ra lỗi</div>
+                    <div class="gs-subtitle mb-4">Hệ thống gặp sự cố trong quá trình tạo video.</div>
+                    <div class="gs-cost-alert error justify-content-center mb-4">⚠️ @_errorMessage</div>
+                    <div class="gs-flex-center justify-content-center gap-2">
+                        <button class="gs-btn-result primary" @onclick="ResetStudio">🔄 Thử lại</button>
+                        <a href="/topup" class="gs-btn-result secondary">💳 Nạp thêm Credit</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @* ════════════════════════════════════════════════════════════
+           UPGRADE DIALOG
+           ════════════════════════════════════════════════════════════ *@
+        <MudDialog @bind-Visible="_showUpgradeDialog" Options="new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true }">
+            <TitleContent>
+                <div class="d-flex align-items-center gap-2">
+                    <span style="font-size:1.5rem">✨</span><MudText Typo="Typo.h6">Tính năng Premium</MudText>
+                </div>
+            </TitleContent>
+            <DialogContent>
+                <MudText Typo="Typo.body2" Class="mt-3">
+                    Nâng cấp ngay để mở khoá <strong>@_upgradeFeatureName</strong>. Yêu cầu gói <strong>@_upgradeRequiredPlan</strong>.
+                </MudText>
+            </DialogContent>
+            <DialogActions>
+                <MudButton OnClick="CloseUpgradeDialog" Variant="Variant.Text">Để sau</MudButton>
+                <MudButton OnClick="NavigateToPricing" Color="Color.Primary" Variant="Variant.Filled">Nâng cấp →</MudButton>
+            </DialogActions>
+        </MudDialog>
+
+    </div>
+</div>

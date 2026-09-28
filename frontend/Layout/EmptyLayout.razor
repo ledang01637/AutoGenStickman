@@ -1,0 +1,83 @@
+@inherits LayoutComponentBase
+@inject IJSRuntime JS
+
+@* Đồng bộ Theme và Trạng thái Dark Mode *@
+<MudThemeProvider Theme="@_saasTheme" @bind-IsDarkMode="@_isDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<div class="auth-layout-root">
+    <div class="glow-orb orb-primary"></div>
+    <div class="glow-orb orb-secondary"></div>
+
+    <div class="auth-content">
+        @Body
+    </div>
+</div>
+
+
+@code {
+    private bool _isDarkMode = true; 
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var savedTheme = await JS.InvokeAsync<string>("localStorage.getItem", "saas_dark_mode");
+            if (!string.IsNullOrEmpty(savedTheme))
+            {
+                _isDarkMode = bool.Parse(savedTheme);
+                StateHasChanged(); 
+            }
+        }
+    }
+
+    // ==========================================
+    // BÊ BỘ THEME TỪ MAINLAYOUT SANG ĐỂ ĐỒNG BỘ
+    // ==========================================
+    private readonly MudTheme _saasTheme = new MudTheme()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = "#4169E1", 
+            Secondary = "#50C878", 
+            Background = "#f8fafc",
+            Surface = "#ffffff",
+            AppbarBackground = "rgba(255, 255, 255, 0.85)", 
+            AppbarText = "#1e293b",
+            DrawerBackground = "#ffffff"
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = "#4169E1", 
+            Secondary = "#50C878", 
+            Background = "#0f111a", 
+            Surface = "#1a1d27", 
+            TextPrimary = "#e2e8f0",
+            TextSecondary = "#94a3b8",
+            AppbarBackground = "rgba(21, 24, 33, 0.85)", 
+            AppbarText = "#e2e8f0",
+            DrawerBackground = "#151821"
+        },
+        Typography = new Typography()
+        {   
+            Default = 
+            { 
+                FontFamily = new[] { "Inter", "Helvetica", "Arial", "sans-serif" },
+                FontSize = "0.875rem", 
+                FontWeight = "400"  
+            },
+            H5 = 
+            {
+                FontFamily = new[] { "Inter", "Helvetica", "Arial", "sans-serif" },
+                FontWeight = "700"  
+            },
+            Subtitle1 = 
+            {
+                FontFamily = new[] { "Inter", "Helvetica", "Arial", "sans-serif" },
+                FontWeight = "600"  
+            }
+        }
+    };
+}

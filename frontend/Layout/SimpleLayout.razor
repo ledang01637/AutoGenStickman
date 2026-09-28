@@ -1,0 +1,135 @@
+@inherits LayoutComponentBase
+
+<MudThemeProvider Theme="@_saasTheme" @bind-IsDarkMode="@_isDarkMode" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<MudLayout>
+    <MudAppBar Fixed="true" Elevation="0" Class="auth-navbar-glass">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="d-flex align-center px-0 w-100">
+
+            <div class="d-flex align-center gap-2 cursor-pointer logo-hover"
+                 @onclick='() => NavigationManager.NavigateTo("/")'>
+                <MudIcon Icon="@Icons.Material.Filled.SlowMotionVideo"
+                         Color="Color.Secondary"
+                         Size="Size.Large" />
+                <MudText Typo="Typo.h5" Class="fw-bold mb-0 d-none d-sm-block">
+                    GenStickman<span style="color: var(--mud-palette-primary);">Studio</span>
+                </MudText>
+                <MudText Typo="Typo.h5" Class="fw-bold mb-0 d-block d-sm-none">
+                    GenStickman
+                </MudText>
+            </div>
+
+            <MudSpacer />
+
+            <div class="d-flex align-items-center gap-3">
+
+                @* Credit chip *@
+                <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined" Class="fw-bold d-none d-sm-inline-flex">
+                    <MudIcon Icon="@Icons.Material.Filled.Toll" Class="me-1" Size="Size.Small" />
+                    @(_appState.IsLoggedIn && _appState.CurrentUser != null ? _appState.CurrentUser.Credit : 0) Credits
+                </MudChip>
+
+                @* Dark mode toggle *@
+                <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                               Color="Color.Inherit"
+                               OnClick="ToggleThemeAsync"
+                               Class="theme-toggle-btn" />
+
+                @* Account menu *@
+                @if (_appState.IsLoggedIn && _appState.CurrentUser != null)
+                {
+                    <MudMenu AnchorOrigin="Origin.BottomRight"
+                             TransformOrigin="Origin.TopRight"
+                             Dense="false"
+                             Class="ms-2">
+
+                        <ActivatorContent Context="menuContext">
+                            <MudAvatar Color="Color.Primary"
+                                       Size="Size.Medium"
+                                       Class="cursor-pointer border border-2 border-success"
+                                       @onclick="@(() => menuContext.ToggleAsync())">
+                                <MudImage Src="@(_appState.CurrentUser.AvatarUrl ?? "https://avatars.githubusercontent.com/u/1?v=4")" />
+                            </MudAvatar>
+                        </ActivatorContent>
+
+                        <ChildContent>
+                            <div class="px-5 py-4" style="min-width: 250px;">
+                                <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="3">
+                                    <MudAvatar Size="Size.Medium">
+                                        <MudImage Src="@(_appState.CurrentUser.AvatarUrl ?? "https://avatars.githubusercontent.com/u/1?v=4")" />
+                                    </MudAvatar>
+                                    <MudStack Spacing="0">
+                                        <MudText Typo="Typo.body1" Class="fw-bold">@(_appState.CurrentUser.FullName ?? "User Name")</MudText>
+                                        <MudText Typo="Typo.caption" Color="Color.Secondary">@(_appState.CurrentUser.Email ?? "user@gmail.com")</MudText>
+                                    </MudStack>
+                                </MudStack>
+
+                                <MudStack Row="true" Spacing="2" Class="mt-4">
+                                    <MudChip T="string"
+                                             Variant="Variant.Filled"
+                                             Size="Size.Small"
+                                             Style="background-color: #94a3b8; color: white;"
+                                             Class="px-4 fw-bold">@(_appState.CurrentUser.Plan ?? "Free")</MudChip>
+                                    <MudChip T="string"
+                                             Variant="Variant.Filled"
+                                             Color="Color.Success"
+                                             Size="Size.Small"
+                                             Icon="@Icons.Material.Filled.AutoAwesome"
+                                             Class="px-3 fw-bold">@(_appState.CurrentUser.Credit)</MudChip>
+                                </MudStack>
+                            </div>
+
+                            <MudDivider Class="my-2" />
+
+                            <MudMenuItem Icon="@Icons.Material.Outlined.Person">
+                                <MudText Typo="Typo.body2">Hồ sơ</MudText>
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Outlined.StarBorder" Href="/pricing">
+                                <MudText Typo="Typo.body2">Nâng cấp</MudText>
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Outlined.AddCard" Href="/topup">
+                                <MudText Typo="Typo.body2">Nạp thêm</MudText>
+                            </MudMenuItem>
+                            <MudMenuItem Icon="@Icons.Material.Outlined.Settings">
+                                <MudText Typo="Typo.body2">Cài đặt</MudText>
+                            </MudMenuItem>
+
+                            <MudDivider Class="my-2" />
+
+                            <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                                         IconColor="Color.Error"
+                                         OnClick="HandleLogoutAsync">
+                                <MudText Typo="Typo.body2" Color="Color.Error">Đăng xuất</MudText>
+                            </MudMenuItem>
+                        </ChildContent>
+                    </MudMenu>
+                }
+                else
+                {
+                    <MudButton Href="/login"
+                               Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               DropShadow="false"
+                               Class="ms-2 rounded-pill fw-bold">
+                        Đăng nhập
+                    </MudButton>
+                }
+            </div>
+
+        </MudContainer>
+    </MudAppBar>
+
+    <MudMainContent>
+        <div class="auth-layout-root">
+            <div class="glow-orb orb-primary"></div>
+            <div class="glow-orb orb-secondary"></div>
+            <MudContainer MaxWidth="MaxWidth.Large" Class="auth-content">
+                @Body
+            </MudContainer>
+        </div>
+    </MudMainContent>
+
+</MudLayout>

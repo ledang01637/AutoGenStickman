@@ -1,0 +1,157 @@
+﻿@* File: Layout/NavMenu.razor *@
+
+<div class="nav-drawer-wrapper d-flex flex-column h-100">
+
+    @if (_appState.IsLoggedIn && _appState.CurrentUser != null)
+    {
+        <div class="nav-user-section">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                <MudAvatar Color="Color.Primary"
+                           Size="Size.Medium"
+                           Style="border: 2px solid var(--mud-palette-success); flex-shrink: 0;">
+                    @if (!string.IsNullOrEmpty(_appState.CurrentUser.AvatarUrl))
+                    {
+                        <MudImage Src="@_appState.CurrentUser.AvatarUrl" Alt="Avatar" />
+                    }
+                    else
+                    {
+                        @_appState.CurrentUser.FullName?.FirstOrDefault()
+                    }
+                </MudAvatar>
+                <div style="flex: 1; min-width: 0;">
+                    <MudText Typo="Typo.body2"
+                             Class="fw-bold text-truncate"
+                             Style="color: var(--mud-palette-text-primary);">
+                        @(_appState.CurrentUser.FullName ?? "User")
+                    </MudText>
+                    <MudText Typo="Typo.caption"
+                             Class="text-truncate d-block"
+                             Style="color: var(--mud-palette-text-secondary);">
+                        @_appState.CurrentUser.Email
+                    </MudText>
+                </div>
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Variant="Variant.Outlined"
+                         Color="Color.Secondary"
+                         Icon="@Icons.Material.Filled.Toll"
+                         Style="flex-shrink: 0; height: 26px; font-size: 0.7rem; padding: 0 6px;">
+                    @_appState.CurrentUser.Credit
+                </MudChip>
+            </MudStack>
+        </div>
+        <hr class="nav-divider" />
+    }
+
+    @* Grid nav — chỉ hiện trên mobile *@
+    @if (!IsDesktop)
+    {
+        <div class="nav-grid">
+            <NavGridItem Href="/"
+                         Icon="@Icons.Material.Filled.Home"
+                         Label="Trang chủ"
+                         Match="NavLinkMatch.All" />
+            <NavGridItem Href="/studio"
+                         Icon="@Icons.Material.Filled.MovieCreation"
+                         Label="Video Studio"
+                         Match="NavLinkMatch.Prefix" />
+            <NavGridItem Href="/history"
+                         Icon="@Icons.Material.Filled.History"
+                         Label="Lịch sử kết xuất"
+                         Match="NavLinkMatch.Prefix" />
+        </div>
+    }
+    else
+    {
+        @* List nav — Mini drawer desktop *@
+        <MudNavMenu Class="nav-menu pa-2">
+            <MudTooltip Text="Trang chủ"
+                        Placement="Placement.Right"
+                        ShowOnHover="@_showTooltips"
+                        Arrow="true">
+                <MudNavLink Href="/"
+                            Match="NavLinkMatch.All"
+                            Icon="@Icons.Material.Filled.Home"
+                            Class="nav-item">
+                    Trang chủ
+                </MudNavLink>
+            </MudTooltip>
+
+            <MudTooltip Text="Video Studio"
+                        Placement="Placement.Right"
+                        ShowOnHover="@_showTooltips"
+                        Arrow="true">
+                <MudNavLink Href="/studio"
+                            Match="NavLinkMatch.Prefix"
+                            Icon="@Icons.Material.Filled.MovieCreation"
+                            Class="nav-item">
+                    Video Studio
+                </MudNavLink>
+            </MudTooltip>
+
+            <MudTooltip Text="Lịch sử kết xuất"
+                        Placement="Placement.Right"
+                        ShowOnHover="@_showTooltips"
+                        Arrow="true">
+                <MudNavLink Href="/history"
+                            Match="NavLinkMatch.Prefix"
+                            Icon="@Icons.Material.Filled.History"
+                            Class="nav-item">
+                    Lịch sử kết xuất
+                </MudNavLink>
+            </MudTooltip>
+        </MudNavMenu>
+    }
+
+    @if (_appState.IsLoggedIn && _appState.CurrentUser != null && !IsDesktop)
+    {
+        <hr class="nav-divider mt-auto" />
+        <div class="nav-footer">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="d-flex align-items-center gap-2">
+                    <MudIcon Icon="@Icons.Material.Outlined.AccountCircle"
+                             Size="Size.Small"
+                             Style="color: var(--mud-palette-text-secondary);" />
+                    <MudText Typo="Typo.caption"
+                             Style="color: var(--mud-palette-text-secondary);">
+                        Gói hiện tại
+                    </MudText>
+                </div>
+                <MudChip T="string"
+                         Size="Size.Small"
+                         Variant="Variant.Outlined"
+                         Color="@_planChipColor"
+                         Style="height: 22px; font-size: 0.7rem;">
+                    @(_appState.CurrentUser.Plan ?? "Free")
+                </MudChip>
+            </div>
+
+            @if (_isFreePlan)
+            {
+                <MudButton Href="/pricing"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           DropShadow="false"
+                           FullWidth="true"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.AutoAwesome"
+                           Class="rounded-lg fw-bold">
+                    Nâng cấp gói
+                </MudButton>
+            }
+            else
+            {
+                <MudButton Href="/topup"
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           DropShadow="false"
+                           FullWidth="true"
+                           Size="Size.Small"
+                           StartIcon="@Icons.Material.Filled.AddCard"
+                           Class="rounded-lg fw-bold">
+                    Nạp thêm Credits
+                </MudButton>
+            }
+        </div>
+    }
+</div>

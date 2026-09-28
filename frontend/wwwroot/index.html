@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AutoGen StickMan - AI Video Studio</title>
+    <base href="/" />
+
+    <!-- SEO -->
+    <meta name="description" content="AutoGen StickMan - Tự động hóa toàn bộ quy trình sản xuất video AI với nhân vật stickman độc đáo." />
+    <meta name="keywords" content="AI video, stickman, tự động hóa, video studio, AutoGen" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://your-domain.com/" />
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="AutoGen StickMan - AI Video Studio" />
+    <meta property="og:description" content="Tự động hóa toàn bộ quy trình sản xuất video AI." />
+    <meta property="og:url" content="https://your-domain.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://your-domain.com/icon-192.png" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AutoGen StickMan - AI Video Studio" />
+    <meta name="twitter:description" content="Tự động hóa toàn bộ quy trình sản xuất video AI." />
+    <meta name="twitter:image" content="https://your-domain.com/icon-192.png" />
+
+
+    <!-- Preload critical Blazor files -->
+    <link rel="preload" href="_framework/blazor.webassembly.js" as="script">
+    <link rel="stylesheet" href="css/fonts.css" />
+
+    <!-- CSS critical load -->
+    <link rel="stylesheet" href="css/app.css" />
+    <link href="css/responsive.css" rel="stylesheet" />
+    <link href="frontend.styles.css" rel="stylesheet" />
+    <link href="_content/MudBlazor/MudBlazor.min.css" rel="stylesheet" />
+
+    <!-- Bootstrap defer — không critical -->
+    <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" onload="this.media='all'">
+
+    <link rel="icon" type="image/png" href="favicon.png" />
+
+        <style>
+        :root {
+            --primary: #4169E1;
+            --secondary: #50C878;
+            --bg-dark: #0f111a;
+            --bg-surface: #1a1d27;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--mud-palette-background);
+            font-family: 'Inter', sans-serif;
+            color: var(--mud-palette-text-primary);
+        }
+
+        .app-loader {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: radial-gradient(circle at center, var(--bg-surface) 0%, var(--bg-dark) 100%);
+        }
+
+        .orb-container {
+            position: relative;
+            width: 80px;
+            height: 80px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            animation: orb-pulse 2s ease-in-out infinite alternate;
+            filter: blur(12px);
+        }
+
+        .orb-1 {
+            width: 60px; height: 60px;
+            background-color: var(--primary);
+            transform: translateX(-15px);
+            animation-delay: 0s;
+        }
+
+        .orb-2 {
+            width: 50px; height: 50px;
+            background-color: var(--secondary);
+            transform: translateX(20px);
+            animation-delay: -1s;
+        }
+
+        .orb-core {
+            position: absolute;
+            width: 24px; height: 24px;
+            background: white;
+            border-radius: 50%;
+            z-index: 2;
+            box-shadow: 0 0 20px rgba(255,255,255,0.8);
+        }
+
+        @keyframes orb-pulse {
+            0% { transform: scale(0.8) translateX(0); opacity: 0.7; }
+            100% { transform: scale(1.2) translateX(15px); opacity: 1; }
+        }
+
+        .loader-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #ffffff, #a5b4fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .loader-text {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            animation: text-blink 1.5s infinite;
+        }
+
+        @keyframes text-blink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        #blazor-error-ui {
+            background: var(--bg-surface);
+            color: var(--text-main);
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%);
+            position: fixed;
+            padding: 16px 24px;
+            border-radius: 16px;
+            border-left: 4px solid #ef4444; 
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
+            display: none;
+            align-items: center;
+            gap: 20px;
+            z-index: 9999;
+            font-size: 0.95rem;
+            font-weight: 500;
+            width: max-content;
+            max-width: 90vw;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+
+        #blazor-error-ui[style*="display: block"] {
+            display: flex !important;
+            animation: slide-up 0.3s ease-out;
+        }
+
+        @keyframes slide-up {
+            from { bottom: -50px; opacity: 0; }
+            to { bottom: 32px; opacity: 1; }
+        }
+
+        #blazor-error-ui .reload {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 16px;
+            background: rgba(65, 105, 225, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        #blazor-error-ui .reload:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        #blazor-error-ui .dismiss {
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            transition: color 0.2s;
+        }
+
+        #blazor-error-ui .dismiss:hover {
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+        <div id="app">
+        <div class="app-loader">
+            <div class="orb-container">
+                <div class="orb orb-1"></div>
+                <div class="orb orb-2"></div>
+                <div class="orb-core"></div>
+            </div>
+            <h1 class="loader-title">AutoGen StickMan</h1>
+            <div class="loader-text">Đang tải không gian sáng tạo AI...</div>
+        </div>
+    </div>
+
+    <div id="blazor-error-ui">
+        <span>Đã xảy ra lỗi kết nối hoặc hệ thống. Vui lòng thử lại.</span>
+        <a href="" class="reload">Tải lại trang</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.webassembly.js"></script>
+
+    <script src="_content/MudBlazor/MudBlazor.min.js" defer></script>
+
+    <script>
+        window.googleLoginHelper = {
+            initialize: function (clientId, dotnetHelper) {
+                google.accounts.id.initialize({
+                    client_id: clientId,
+                    callback: function (response) {
+                        dotnetHelper.invokeMethodAsync('OnGoogleLoginSuccess', response.credential);
+                    }
+                });
+                google.accounts.id.renderButton(
+                    document.getElementById("google-login-button"),
+                    { theme: "outline", size: "large", width: "100%" }
+                );
+            }
+        };
+
+        window.playVideoElement = (videoEl) => {
+            if (videoEl && typeof videoEl.play === 'function') {
+                videoEl.play().catch(err => console.warn('Play blocked:', err));
+            }
+        };
+
+            window.loadGoogleScript = () => {
+            return new Promise((resolve) => {
+                const script = document.createElement('script');
+                script.src = 'https://accounts.google.com/gsi/client';
+                script.onload = resolve;
+                document.head.appendChild(script);
+            });
+        };
+    </script>
+</body>
+
+</html>
+

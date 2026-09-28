@@ -1,0 +1,42 @@
+@* File: Layout/NavGridItem.razor *@
+@using Microsoft.AspNetCore.Components.Routing
+
+@inject NavigationManager NavigationManager
+
+<a href="@Href"
+   class="nav-grid-item @(_isActive ? "nav-grid-item--active" : "")"
+   @onclick="HandleClick"
+   @onclick:preventDefault="true">
+    <div class="nav-grid-item__icon">
+        <MudIcon Icon="@Icon" Size="Size.Large" />
+    </div>
+    <span class="nav-grid-item__label">@Label</span>
+</a>
+
+@code {
+    [Parameter, EditorRequired] public string Href { get; set; } = "/";
+    [Parameter, EditorRequired] public string Icon { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Label { get; set; } = string.Empty;
+    [Parameter] public NavLinkMatch Match { get; set; } = NavLinkMatch.Prefix;
+
+    private bool _isActive
+    {
+        get
+        {
+            var current = "/" + NavigationManager
+                .ToBaseRelativePath(NavigationManager.Uri)
+                .ToLower()
+                .TrimStart('/')
+                .Split('?')[0];
+
+            return Match == NavLinkMatch.All
+                ? current == Href.ToLower()
+                : current.StartsWith(Href.ToLower());
+        }
+    }
+
+    private void HandleClick()
+    {
+        NavigationManager.NavigateTo(Href);
+    }
+}

@@ -1,0 +1,35 @@
+@layout EmptyLayout 
+@page "/404"
+@page "/not-found"
+
+<div class="d-flex align-center justify-center" style="min-height: 100vh; background-color: var(--mud-palette-background);">
+    <MudPaper Elevation="8" Class="pa-8 rounded-xl mx-4" Style="width: 100%; max-width: 480px; border: 1px solid var(--mud-palette-divider);">
+        
+        @* ── ICON & TITLE ── *@
+        <div class="d-flex flex-column align-center">
+            <MudPaper Elevation="4" Class="d-flex align-center justify-center pa-4 rounded-lg mb-4" Style="background: linear-gradient(135deg, var(--mud-palette-error), var(--mud-palette-error-darken));">
+                <MudIcon Icon="@Icons.Material.Filled.BrokenImage" Style="font-size: 3rem; color: white;" />
+            </MudPaper>
+            
+            <MudText Typo="Typo.h4" Class="fw-bolder mb-2" Align="Align.Center">
+                404
+            </MudText>
+            <MudText Typo="Typo.h6" Class="fw-bold mb-1" Align="Align.Center">
+                Trang Không Tồn Tại
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="mb-6">
+                Có vẻ như bạn đã đi lạc. Tuyến đường này không có trên bản đồ của GenStickman, hoặc nội dung đã bị gỡ bỏ.
+            </MudText>
+        </div>
+
+        <MudDivider Class="my-4" />
+
+        @* ── ACTION ── *@
+        <div class="d-flex justify-center mt-6">
+            <MudButton Href="/" Variant="Variant.Filled" Color="Color.Primary" Size="Size.Large" Class="rounded-lg w-100 fw-bold" StartIcon="@Icons.Material.Filled.Home">
+                Về Trang Chủ
+            </MudButton>
+        </div>
+
+    </MudPaper>
+</div>

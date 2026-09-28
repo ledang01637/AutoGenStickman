@@ -1,0 +1,453 @@
+﻿/* File: Pages/Studio.razor.css */
+
+/* ═══════════════════════════════════════════════════════════
+   1. LAYOUT WRAPPER
+   ═══════════════════════════════════════════════════════════ */
+.gs-studio-wrapper { width: 100%; }
+.gs-studio-inner { max-width: 1100px; margin: 0 auto; padding: 1.5rem 1.5rem 4rem; }
+
+.gs-flex-between { display: flex; justify-content: space-between; align-items: center; }
+.gs-flex-center { display: flex; align-items: center; }
+.mb-1 { margin-bottom: 0.5rem; }
+.mb-2 { margin-bottom: 1rem; }
+.mb-3 { margin-bottom: 1.5rem; }
+.mb-4 { margin-bottom: 2rem; }
+.mt-3 { margin-top: 1rem; }
+.mt-4 { margin-top: 1.5rem; }
+
+/* ═══════════════════════════════════════════════════════════
+   2. HEADER
+   ═══════════════════════════════════════════════════════════ */
+.gs-studio-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+    flex-wrap: wrap;
+}
+
+.gs-brand-mark { display: flex; align-items: center; gap: 0.75rem; min-width: 0; }
+
+.gs-brand-icon {
+    width: 36px; height: 36px; flex-shrink: 0;
+    background: var(--mud-palette-primary);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: #fff;
+}
+
+.gs-brand-text { min-width: 0; }
+
+.gs-title {
+    font-size: 1.15rem; font-weight: 700;
+    color: var(--mud-palette-text-primary);
+    line-height: 1.2; margin: 0; white-space: nowrap;
+}
+
+.gs-subtitle {
+    font-size: 0.78rem; color: var(--mud-palette-text-secondary);
+    margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.gs-header-actions { display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap; flex-shrink: 0; }
+
+.gs-job-badge { font-size: 0.72rem; font-weight: 600; color: var(--mud-palette-text-secondary); }
+
+.gs-plan-badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 4px 10px; border-radius: 99px;
+    font-size: 0.72rem; font-weight: 800; color: #fff;
+    text-transform: uppercase; letter-spacing: 0.5px;
+}
+
+.gs-credit-chip {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(65, 105, 225, 0.08);
+    border: 1px solid rgba(65, 105, 225, 0.2);
+    border-radius: 99px; padding: 4px 12px;
+    font-size: 0.78rem; color: var(--mud-palette-text-primary);
+}
+
+.gs-credit-dot {
+    width: 7px; height: 7px;
+    background: var(--mud-palette-secondary); border-radius: 50%;
+}
+
+.gs-text-muted { color: var(--mud-palette-text-secondary); }
+
+/* ═══════════════════════════════════════════════════════════
+   3. DESKTOP LAYOUT
+   ═══════════════════════════════════════════════════════════ */
+.gs-layout {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1.25rem;
+    align-items: start;
+}
+
+.gs-side-col {
+    position: sticky;
+    top: calc(var(--mud-appbar-height, 64px) + 1.5rem);
+    display: flex; 
+    flex-direction: column; 
+    gap: 1rem;
+}
+
+@media (max-width: 960px) {
+    .gs-layout { grid-template-columns: 1fr; gap: 1rem; }
+    .gs-side-col { position: static; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   4. CARDS
+   ═══════════════════════════════════════════════════════════ */
+.gs-studio-card {
+    background: var(--mud-palette-surface);
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 16px; overflow: hidden;
+}
+
+.gs-card-topbar { height: 3px; background: var(--mud-palette-primary); }
+
+.gs-card-topbar.processing {
+    background: linear-gradient(90deg, var(--mud-palette-primary), var(--mud-palette-secondary), var(--mud-palette-primary));
+    background-size: 200% 100%;
+    animation: shimmerBar 2s infinite linear;
+}
+
+@keyframes shimmerBar { to { background-position: -200% 0; } }
+
+.gs-card-body { padding: 1.75rem; }
+
+@media (max-width: 600px) {
+    .gs-card-body { padding: 1.25rem 1rem; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   5. FIELDS — chung
+   ═══════════════════════════════════════════════════════════ */
+.gs-field-group { margin-bottom: 1.5rem; position: relative; }
+.gs-field-group:last-child { margin-bottom: 0; }
+
+.gs-field-label {
+    display: block; font-size: 0.72rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1px;
+    color: var(--mud-palette-text-secondary); margin-bottom: 0.5rem;
+}
+
+.gs-limit-hint { font-size: 0.72rem; color: var(--mud-palette-text-secondary); }
+
+/* ═══════════════════════════════════════════════════════════
+   6. DURATION SLIDER
+   padding-bottom: 2.5rem — MudSlider render tick labels với
+   position:absolute overflow ~20px ra dưới track. Card cần
+   đủ không gian để chứa chúng, overflow:visible để không bị
+   clip bởi border-radius.
+   ═══════════════════════════════════════════════════════════ */
+.gs-duration-field {
+    margin-bottom: 2rem;
+    background: var(--mud-palette-background);
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 12px;
+    padding: 1rem 1.25rem 2.5rem;
+    overflow: visible;
+}
+
+/* label bên trong duration card — không dùng gs-duration-header nữa */
+.gs-duration-field .gs-field-label {
+    margin-bottom: 0.5rem;
+}
+
+.gs-duration-slider { padding: 0 0.25rem; margin-top: 0.5rem; }
+
+::deep .gs-duration-slider .mud-slider-tick-label {
+    font-size: 0.68rem;
+    color: var(--mud-palette-text-secondary);
+    font-weight: 600;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   7. ADVANCED TOGGLE / PANEL
+   ═══════════════════════════════════════════════════════════ */
+.gs-advanced-wrap {
+    border-top: 1px solid var(--mud-palette-divider);
+    padding-top: 1.25rem;
+    margin-top: 1.75rem;
+}
+
+.gs-advanced-toggle {
+    width: 100%;
+    display: flex; justify-content: space-between; align-items: center;
+    background: transparent; border: none;
+    color: var(--mud-palette-text-primary);
+    font-weight: 600; cursor: pointer; font-size: 0.9rem;
+    padding: 0.5rem 0; min-height: 44px;
+}
+
+/* margin-top đủ lớn để advanced panel thở sau toggle button */
+.gs-advanced-panel { margin-top: 1.75rem; }
+
+.gs-chevron { color: var(--mud-palette-text-secondary); font-size: 0.8rem; }
+
+.gs-lock-badge, .gs-feature-lock {
+    font-size: 0.65rem; font-weight: 800;
+    background: rgba(65, 105, 225, 0.1);
+    color: var(--mud-palette-primary);
+    padding: 2px 6px; border-radius: 4px;
+}
+
+.gs-locked-field { opacity: 0.5; pointer-events: none; }
+
+.gs-locked-overlay {
+    position: absolute; inset: 0; cursor: pointer;
+    z-index: 5; background: transparent; pointer-events: auto;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   8. SETTINGS LIST (Advanced panel)
+   ═══════════════════════════════════════════════════════════ */
+
+/* Nhân vật chính — khoảng cách đủ để tách khỏi settings-list */
+.gs-character-section {
+    margin-bottom: 1.75rem;
+}
+
+/*
+   MudBlazor MudTextField/MudSelect với Margin.Dense inject
+   .mud-input-control-margin-dense vào wrapper, thêm margin-bottom: 4px.
+   Bên trong gs-character-section, margin này cộng dồn với
+   margin-bottom của section tạo khoảng cách thừa.
+   Reset về 0 — spacing do section wrapper quyết định.
+*/
+::deep .gs-character-section .mud-input-control {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+}
+
+/* Sub-label "Tuỳ chỉnh nội dung" */
+.gs-subsection-label {
+    display: block;
+    font-size: 0.65rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 1.2px;
+    color: var(--mud-palette-text-disabled);
+    margin-bottom: 0.75rem;
+}
+
+/* Card bọc settings list */
+.gs-settings-card {
+    background: var(--mud-palette-background);
+    border: 1px solid var(--mud-palette-divider);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.gs-settings-list { display: flex; flex-direction: column; }
+
+.gs-settings-row {
+    display: flex; align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 1.25rem;
+    min-height: 60px;
+    border-bottom: 1px solid var(--mud-palette-divider);
+    position: relative;
+}
+
+.gs-settings-row:last-child { border-bottom: none; }
+
+.gs-settings-row__control--switch {
+    flex: 0 0 auto;
+    max-width: none;
+}
+
+::deep .gs-settings-row .mud-input-control {
+    margin-bottom: 0 !important;
+    margin-top: 0 !important;
+}
+
+.gs-settings-row__label {
+    font-size: 0.85rem; font-weight: 600;
+    color: var(--mud-palette-text-primary);
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+}
+
+.gs-settings-row__control { flex: 1; min-width: 0; max-width: 220px; }
+
+.gs-settings-row.gs-locked-field { opacity: 0.5; }
+
+/* MudSelect trong settings-row — transparent, canh phải */
+::deep .gs-settings-row__control .mud-input { background: transparent !important; }
+::deep .gs-settings-row__control .mud-input-outlined-border { border: none !important; }
+::deep .gs-settings-row__control .mud-input-slot {
+    justify-content: flex-end; text-align: right; padding-right: 0 !important;
+}
+::deep .gs-settings-row__control input.mud-input-slot { text-align: right; }
+
+/* ═══════════════════════════════════════════════════════════
+   9. SELECT ITEM RICH
+   ═══════════════════════════════════════════════════════════ */
+.select-item-rich {
+    display: flex; flex-direction: column;
+    justify-content: center; gap: 4px;
+    width: 100%; line-height: normal !important;
+}
+
+.select-item-main { display: flex; align-items: center; }
+
+.select-item-label { font-size: 0.9rem; font-weight: 700; color: var(--mud-palette-text-primary); }
+
+.select-item-desc {
+    font-size: 0.72rem; color: var(--mud-palette-text-secondary);
+    display: flex; align-items: center; gap: 4px; flex-wrap: wrap;
+}
+
+.select-item-dot { opacity: 0.5; font-weight: bold; }
+
+::deep .gs-settings-row__control .select-item-rich { gap: 0; }
+::deep .gs-settings-row__control .select-item-main { justify-content: flex-end; }
+
+/*
+   MudSelect re-render toàn bộ MudSelectItem template bên trong value display area
+   (.mud-input-slot / .mud-select-input). Ẩn select-item-desc ở tất cả các context
+   bên trong settings-row__control — cả dropdown list lẫn value display.
+*/
+::deep .gs-settings-row__control .select-item-desc { display: none !important; }
+::deep .gs-settings-row__control .mud-input-slot .select-item-rich { gap: 0; }
+::deep .gs-settings-row__control .mud-select-input .select-item-desc { display: none !important; }
+
+/*
+   Tone select (gs-tone-select): ẩn select-item-desc chỉ trong phần hiển thị
+   value đã chọn (.mud-input-slot, .mud-select-input).
+   Dropdown MudBlazor portal ra ngoài DOM tree của input,
+   nên không bị ảnh hưởng — mô tả vẫn hiện khi mở dropdown.
+*/
+::deep .gs-tone-select .mud-input-slot .select-item-desc { display: none !important; }
+::deep .gs-tone-select .mud-select-input .select-item-desc { display: none !important; }
+::deep .gs-tone-select .mud-input-slot .select-item-rich { gap: 0; }
+
+/* ═══════════════════════════════════════════════════════════
+   10. COST PREVIEW CARD
+   ═══════════════════════════════════════════════════════════ */
+.gs-cost-preview-card {
+    background: rgba(65, 105, 225, 0.05);
+    border: 1px solid rgba(65, 105, 225, 0.15);
+    border-radius: 12px; padding: 1.1rem;
+}
+
+.gs-cost-preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.gs-cost-preview-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: var(--mud-palette-text-secondary); }
+
+.gs-cost-main { text-align: center; margin-bottom: 1rem; }
+.gs-cost-number { font-size: 2.25rem; font-weight: 900; color: var(--mud-palette-primary); }
+.gs-cost-number.insufficient { color: var(--mud-palette-error); }
+.gs-cost-unit { font-size: 0.85rem; font-weight: 700; color: var(--mud-palette-text-secondary); margin-left: 4px; }
+
+.gs-cost-breakdown {
+    display: flex; align-items: center; justify-content: space-around;
+    background: var(--mud-palette-background);
+    border-radius: 10px; padding: 0.75rem;
+}
+
+.gs-cost-item { display: flex; align-items: center; gap: 0.5rem; }
+.gs-cost-icon { font-size: 1.1rem; }
+.gs-cost-value { font-size: 0.85rem; font-weight: 800; color: var(--mud-palette-text-primary); }
+.gs-cost-value.text-error { color: var(--mud-palette-error); }
+.gs-cost-label { font-size: 0.62rem; color: var(--mud-palette-text-secondary); text-transform: uppercase; font-weight: 600; }
+.gs-cost-divider { width: 1px; height: 26px; background: var(--mud-palette-divider); }
+
+.gs-cost-alert {
+    display: flex; gap: 0.5rem; padding: 0.65rem 0.85rem;
+    border-radius: 8px; font-size: 0.78rem; line-height: 1.4;
+}
+
+.gs-cost-alert.warning { background: rgba(245, 158, 11, 0.1); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.2); }
+.gs-cost-alert.error { background: rgba(239, 68, 68, 0.1); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.2); }
+.gs-cost-link { font-weight: 700; text-decoration: underline; color: inherit; }
+
+.gs-time-notice {
+    display: flex; align-items: flex-start; gap: 0.5rem;
+    padding: 0.65rem 0.9rem; border-radius: 8px;
+    background: rgba(245, 158, 11, 0.05); color: #F59E0B;
+    font-size: 0.8rem; border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   11. BUTTONS
+   ═══════════════════════════════════════════════════════════ */
+.gs-btn-generate {
+    width: 100%; padding: 0.9rem 1.5rem; border-radius: 12px; border: none;
+    font-size: 0.95rem; font-weight: 800; color: #fff;
+    display: flex; justify-content: center; align-items: center; gap: 0.6rem;
+    transition: opacity 0.2s; cursor: pointer;
+}
+
+.gs-btn-generate.ready { background: var(--mud-palette-primary); }
+.gs-btn-generate.ready:hover { opacity: 0.9; }
+.gs-btn-generate.disabled {
+    background: var(--mud-palette-action-disabled-background);
+    color: var(--mud-palette-text-disabled); cursor: not-allowed;
+}
+
+.gs-cost-tag { background: rgba(255,255,255,0.2); padding: 3px 8px; border-radius: 6px; font-size: 0.78rem; }
+
+.gs-btn-result {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.7rem 1.4rem; font-size: 0.88rem; font-weight: 700;
+    border-radius: 10px; cursor: pointer; text-decoration: none; transition: opacity 0.2s;
+}
+
+.gs-btn-result.primary { background: var(--mud-palette-secondary); color: #fff; border: none; }
+.gs-btn-result.primary:hover { opacity: 0.9; }
+.gs-btn-result.secondary { background: transparent; border: 2px solid var(--mud-palette-primary); color: var(--mud-palette-primary); }
+.gs-btn-result.secondary:hover { background: var(--mud-palette-primary); color: #fff; }
+
+.gs-btn-reset {
+    margin-top: 1rem; padding: 0.55rem 1.1rem;
+    background: transparent; border: 1px solid var(--mud-palette-divider);
+    border-radius: 8px; color: var(--mud-palette-text-primary);
+    font-weight: 600; cursor: pointer;
+}
+.gs-btn-reset:hover { background: rgba(65, 105, 225, 0.06); }
+
+/* ═══════════════════════════════════════════════════════════
+   12. PROCESSING STATUS
+   ═══════════════════════════════════════════════════════════ */
+.gs-status-message {
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    background: var(--mud-palette-background);
+    padding: 0.75rem; border-radius: 8px; font-size: 0.85rem; font-weight: 600;
+}
+
+.gs-status-dot {
+    width: 8px; height: 8px;
+    background: var(--mud-palette-primary); border-radius: 50%;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+
+/* ═══════════════════════════════════════════════════════════
+   13. RESPONSIVE — MOBILE
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+    .gs-studio-inner { padding: 0.75rem 0.75rem 3rem; }
+
+    .gs-title { font-size: 1rem; }
+    .gs-studio-header .gs-subtitle { display: none; }
+    .gs-brand-icon { width: 32px; height: 32px; font-size: 1rem; }
+
+    .gs-plan-badge { font-size: 0.65rem; padding: 3px 8px; }
+    .gs-credit-chip { font-size: 0.7rem; padding: 3px 9px; }
+
+    .gs-duration-field { padding: 0.875rem 1rem 2.25rem; }
+
+    .gs-settings-row { padding: 0 1rem; min-height: 56px; }
+    .gs-settings-row__label { font-size: 0.8rem; }
+
+    .gs-cost-breakdown { gap: 0.5rem; padding: 0.65rem; }
+    .gs-cost-divider { display: none; }
+
+    .select-item-desc { flex-direction: column; align-items: flex-start; gap: 0.1rem; }
+    .select-item-dot { display: none; }
+}

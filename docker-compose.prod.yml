@@ -1,0 +1,170 @@
+# docker-compose.prod.yml
+# Usage: docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+#
+# Kiến trúc:
+#   worker-io  (×2): Stage 1-3 — I/O bound, concurrency cao
+#   worker-cpu (×2): Stage 4   — CPU bound, concurrency=1, RAM cao
+#   worker-primary (×1): cleanup + monitoring
+
+services:
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - api
+    restart: unless-stopped
+    volumes:
+      - jobs_data:/app/jobs
+
+  api:
+    build:
+      context: .
+      target: production
+    container_name: autogen_api
+    expose:
+      - "8000"
+    env_file:
+      - .env.prod
+    environment:
+      - APP_ENV=production
+      - PYTHONPATH=/app
+    volumes:
+      - jobs_data:/app/jobs
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 1G
+
+  # ── I/O Worker: Stage 1-3 (Claude + Fal + Vbee) ─────────────────────────
+  # Gọi API bên ngoài → chờ mạng → không tốn CPU/RAM nhiều.
+  # Concurrency cao: 5 jobs song song/container × 2 container = 10 jobs I/O.
+  worker-io:
+    build:
+      context: .
+      target: worker
+    env_file:
+      - .env.prod
+    environment:
+      - APP_ENV=production
+      - PYTHONPATH=/app
+      - WORKER_ROLE=io              # Stage 1-3 only
+      - WORKER_PRIMARY=false
+      - FAL_CONCURRENCY=2  
+      - VBEE_CONCURRENCY=2
+    volumes:
+      - jobs_data:/app/jobs
+      - models_data:/app/models  
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "0.5"            
+          memory: 768M         
+
+  # ── CPU Worker: Stage 4 (MoviePy render) ────────────────────────────────
+  # Ghép video nặng về CPU và RAM.
+  # Concurrency=1/container, 2 container → global semaphore giới hạn còn 2 renders.
+  worker-cpu:
+    build:
+      context: .
+      target: worker
+    env_file:
+      - .env.prod
+    environment:
+      - APP_ENV=production
+      - PYTHONPATH=/app
+      - WORKER_ROLE=cpu             # Stage 4 only
+      - WORKER_PRIMARY=false
+    volumes:
+      - jobs_data:/app/jobs
+      - models_data:/app/models     # cache faster-whisper model
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      replicas: 2
+      resources:
+        limits:
+          cpus: "2.0"               # FFmpeg/MoviePy cần CPU
+          memory: 3G                # MoviePy buffer frames vào RAM
+
+  # ── Primary Worker: cleanup + monitoring ────────────────────────────────
+  worker-primary:
+    build:
+      context: .
+      target: worker
+    env_file:
+      - .env.prod
+    environment:
+      - APP_ENV=production
+      - PYTHONPATH=/app
+      - WORKER_ROLE=primary
+      - WORKER_PRIMARY=true
+    volumes:
+      - jobs_data:/app/jobs
+      - models_data:/app/models     # cache faster-whisper model
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    deploy:
+      replicas: 1
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 512M
+
+  db:
+    image: postgres:15-alpine
+    container_name: autogen_db
+    expose:
+      - "5432"
+    env_file:
+      - .env.prod
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: autogen_redis
+    expose:
+      - "6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  jobs_data:
+  models_data:

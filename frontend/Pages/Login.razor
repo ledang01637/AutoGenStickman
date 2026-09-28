@@ -1,0 +1,75 @@
+@layout EmptyLayout 
+@page "/login"
+
+
+<MudPaper Elevation="8" Class="pa-8 rounded-xl mx-4" Style="width: 100%; max-width: 480px; border: 1px solid var(--mud-palette-divider);">
+    
+    @* ── LOGO & TITLE ── *@
+    <div class="d-flex flex-column align-center">
+        <MudPaper Elevation="4" Class="d-flex align-center justify-center pa-4 rounded-lg mb-4 cursor-pointer" Style="background: linear-gradient(135deg, var(--mud-palette-primary), var(--mud-palette-primary-darken));" 
+        @onclick='() => NavManager.NavigateTo("/")'>
+            <MudIcon Icon="@Icons.Material.Filled.VideoLibrary" Style="font-size: 2.5rem; color: white;" />
+        </MudPaper>
+        
+        
+        <MudText Typo="Typo.h5" Class="fw-bolder mb-1" Align="Align.Center">
+            AutoGen StickMan
+        </MudText>
+        <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="mb-6">
+            Biến ý tưởng thành video hoạt hình AI trong tích tắc ⚡
+        </MudText>
+    </div>
+
+    
+    <MudPaper Elevation="8" Class="pa-8 rounded-xl w-100" Style="max-width: 480px; border: 1px solid var(--mud-palette-divider);">
+        @* ── ERROR MESSAGE ── *@
+        @if (_errorMessage is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-4 rounded-lg" Dense="true" ShowCloseIcon="true" CloseIconClicked="@(() => _errorMessage = null)">
+                @_errorMessage
+            </MudAlert>
+        }
+
+        @* ── LOGIN ACTION (GOOGLE) ── *@
+        <div class="w-100 my-4">
+            <MudDivider Class="mb-4" />
+            <MudText Typo="Typo.caption" Class="fw-bold text-uppercase d-block mb-4" Color="Color.Primary" Align="Align.Center">
+                🎁 Nhận ngay 15 Credits miễn phí
+            </MudText>
+
+            @if (_isLoading)
+            {
+                <MudPaper Elevation="0" Outlined="true" Class="d-flex align-center justify-center py-3 rounded-lg" Style="background-color: var(--mud-palette-background-grey);">
+                    <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Small" />
+                    <MudText Typo="Typo.button" Class="ml-3 fw-bold">Đang kết nối...</MudText>
+                </MudPaper>
+            }
+            else
+            {
+                <div id="google-login-button" style="width: 100%; display: flex; justify-content: center;"></div>
+            }
+        </div>
+
+        <MudDivider Class="my-6" />
+
+        @* ── FEATURES LIST ── *@
+        <MudStack Spacing="3" Class="px-2">
+            @foreach (var (icon, text) in _features)
+            {
+                <div class="d-flex align-center gap-3">
+                    <MudIcon Icon="@icon" Size="Size.Small" Color="Color.Primary" />
+                    <MudText Typo="Typo.body2" Color="Color.Default" Class="fw-medium">@text</MudText>
+                </div>
+            }
+        </MudStack>
+
+        @* ── FOOTER ── *@
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="mt-8 d-block">
+            Bằng cách đăng nhập, bạn đồng ý với <br/>
+            <MudLink Href="/terms" Typo="Typo.caption" Color="Color.Primary" Class="fw-bold">Điều khoản dịch vụ</MudLink>
+            và
+            <MudLink Href="/privacy" Typo="Typo.caption" Color="Color.Primary" Class="fw-bold">Chính sách bảo mật</MudLink>
+        </MudText>
+
+    </MudPaper>
+</MudPaper>

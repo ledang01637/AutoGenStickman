@@ -1,0 +1,184 @@
+@page "/history"
+@using frontend.Models
+
+<div class="vh-page">
+
+    @* ── HEADER ── *@
+    <div class="vh-header">
+        <div class="vh-header-left">
+            <div class="vh-header-icon">
+                <MudIcon Icon="@Icons.Material.Filled.VideoLibrary" Style="font-size:1.4rem; color:#fff;" />
+            </div>
+            <div>
+                <MudText Typo="Typo.h5" Class="fw-bold mb-0" Style="line-height:1.2;">Thư viện Video</MudText>
+                <MudText Typo="Typo.caption" Color="Color.Secondary">Quản lý và tải xuống các video đã tạo</MudText>
+            </div>
+        </div>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Add"
+                   Href="/studio" Class="rounded-pill fw-bold vh-new-btn">
+            Tạo video mới
+        </MudButton>
+    </div>
+
+    @* ── ALERT ── *@
+    <div class="vh-alert">
+        <MudIcon Icon="@Icons.Material.Filled.Timer" Style="font-size:1rem; flex-shrink:0;" />
+        <span><strong>Lưu ý:</strong> URL video bị xóa sau <strong>1 giờ</strong> kể từ khi tạo thành công. Tải về ngay!</span>
+    </div>
+
+    @* ── LOADING ── *@
+    @if (_isLoading)
+    {
+        <div class="vh-center" style="height:40vh;">
+            <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Large" />
+        </div>
+    }
+
+    @* ── EMPTY ── *@
+    else if (!_videos.Any())
+    {
+        <div class="vh-empty">
+            <div class="vh-empty-icon">
+                <MudIcon Icon="@Icons.Material.Filled.VideoLibrary" Style="font-size:3rem; opacity:0.25;" />
+            </div>
+            <MudText Typo="Typo.h6" Class="fw-bold mb-1">Chưa có video nào</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">Hãy tạo video đầu tiên của bạn!</MudText>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Href="/studio" Class="rounded-pill">
+                Đến Studio →
+            </MudButton>
+        </div>
+    }
+
+    @* ── GRID ── *@
+    else
+    {
+        <div class="vh-grid">
+            @foreach (var video in _videos)
+            {
+                var isActive = video.DisplayStatus is VideoDisplayStatus.Ready or VideoDisplayStatus.ExpiringSoon;
+                var isExpired = video.DisplayStatus is VideoDisplayStatus.Expired;
+                var isFailed = video.DisplayStatus is VideoDisplayStatus.Failed or VideoDisplayStatus.InsufficientCredits;
+
+                <div class="vh-card @(isExpired ? "vh-card--expired" : "") @(isFailed ? "vh-card--failed" : "")">
+
+                    @* Thumbnail *@
+                <div class="vh-thumb">
+                    @if (isActive && !string.IsNullOrEmpty(video.LatestJob?.OutputUrl))
+                    {
+                        <video class="vh-thumb-video"
+                            src="@video.LatestJob.OutputUrl#t=0.5"
+                            preload="metadata"
+                            muted
+                            playsinline>
+                        </video>
+                    }
+                    else
+                    {
+                        @switch (video.DisplayStatus)
+                        {
+                            case VideoDisplayStatus.Processing:
+                            case VideoDisplayStatus.RenderQueued:
+                            case VideoDisplayStatus.Pending:
+                                <MudProgressCircular Color="Color.Primary" Indeterminate="true" Size="Size.Medium" />
+                                break;
+                            case VideoDisplayStatus.Failed:
+                            case VideoDisplayStatus.InsufficientCredits:
+                                <div class="vh-thumb-icon vh-thumb-icon--error">
+                                    <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Style="font-size:2rem;" />
+                                </div>
+                                break;
+                            case VideoDisplayStatus.Expired:
+                                <div class="vh-thumb-icon vh-thumb-icon--expired">
+                                    <MudIcon Icon="@Icons.Material.Filled.CloudOff" Style="font-size:2rem;" />
+                                </div>
+                                break;
+                            default:
+                                <div class="vh-thumb-icon vh-thumb-icon--ready">
+                                    <MudIcon Icon="@Icons.Material.Filled.PlayCircleFilled" Style="font-size:2.5rem;" />
+                                </div>
+                                break;
+                        }
+                    }
+
+                    <span class="vh-badge vh-badge--@GetStatusKey(video.DisplayStatus)">
+                        @GetStatusLabel(video.DisplayStatus)
+                    </span>
+                </div>
+
+                    @* Body *@
+                    <div class="vh-body">
+                        <div class="vh-title">@video.Title</div>
+
+                        <div class="vh-meta">
+                            <span class="vh-meta-item">
+                                <MudIcon Icon="@Icons.Material.Filled.AccessTime" Style="font-size:0.85rem;" />
+                                @video.CreatedAtLocal.ToString("HH:mm · dd/MM/yyyy")
+                            </span>
+                            <span class="vh-meta-item">
+                                <MudIcon Icon="@Icons.Material.Filled.Timer" Style="font-size:0.85rem;" />
+                                @video.DurationDisplay
+                            </span>
+                        </div>
+
+                        @if (video.DisplayStatus is VideoDisplayStatus.Ready or VideoDisplayStatus.ExpiringSoon)
+                        {
+                            <div class="vh-expiry @(video.IsExpiringSoon ? "vh-expiry--warn" : "vh-expiry--ok")">
+                                <MudIcon Icon="@Icons.Material.Filled.HourglassBottom" Style="font-size:0.8rem;" />
+                                @video.TimeRemainingDisplay
+                            </div>
+                        }
+                        else if (isFailed)
+                        {
+                            <div class="vh-failed-note">Credit đã được hoàn lại.</div>
+                        }
+                    </div>
+
+                    @* Actions *@
+                    <div class="vh-actions">
+                        <a href="@(video.LatestJob?.OutputUrl ?? "#")"
+                           download
+                           class="vh-btn-download @(!isActive ? "vh-btn-download--disabled" : "")">
+                            <MudIcon Icon="@Icons.Material.Filled.Download" Style="font-size:1rem;" />
+                            Tải về
+                        </a>
+                        <button class="vh-btn-copy @(!isActive ? "vh-btn-copy--disabled" : "")"
+                                disabled="@(!isActive)"
+                                @onclick="@(() => CopyLinkAsync(video))">
+                            <MudIcon Icon="@Icons.Material.Filled.Link" Style="font-size:1rem;" />
+                        </button>
+                    </div>
+
+                </div>
+            }
+        </div>
+    }
+
+</div>
+
+@code {
+    private string GetStatusKey(VideoDisplayStatus status) => status switch
+    {
+        VideoDisplayStatus.Ready               => "ready",
+        VideoDisplayStatus.ExpiringSoon        => "warn",
+        VideoDisplayStatus.Processing          => "info",
+        VideoDisplayStatus.Pending             => "pending",
+        VideoDisplayStatus.Expired             => "expired",
+        VideoDisplayStatus.Failed              => "error",
+        VideoDisplayStatus.InsufficientCredits => "warn",
+        _                                      => "pending",
+    };
+
+    private string GetStatusLabel(VideoDisplayStatus status) => status switch
+    {
+        VideoDisplayStatus.Ready               => "✅ Sẵn sàng",
+        VideoDisplayStatus.ExpiringSoon        => "⚠️ Sắp hết hạn",
+        VideoDisplayStatus.Processing          => "⚙️ Đang tạo",
+        VideoDisplayStatus.Pending             => "🕐 Chờ xử lý",
+        VideoDisplayStatus.Expired             => "❌ Hết hạn",
+        VideoDisplayStatus.Failed              => "💥 Thất bại",
+        VideoDisplayStatus.InsufficientCredits => "💳 Thiếu credit",
+        VideoDisplayStatus.RenderQueued              => "⏳ Hàng chờ",
+        _                                      => "—",
+    };
+}

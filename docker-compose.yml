@@ -1,0 +1,125 @@
+# Usage: docker compose up --build
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend.local
+    ports:
+      - "80:80"
+    volumes:
+      - jobs_data:/app/jobs
+    depends_on:
+      - api
+    restart: unless-stopped
+
+  api:
+    build:
+      context: .
+      target: development
+    container_name: autogen_api
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app                          # hot-reload
+      - jobs_data:/app/jobs             # share với worker
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=development
+      - APP_NAME=autogen_api
+      - PYTHONPATH=/app
+      - DATABASE_URL=postgresql+asyncpg://user:pass@db:5432/mydb
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  worker:
+    build:
+      context: .
+      target: worker
+    container_name: autogen_worker
+    volumes:
+      - .:/app  
+      - jobs_data:/app/jobs
+      - models_data:/app/models 
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=development
+      - APP_NAME=autogen_worker
+      - PYTHONPATH=/app
+      - DATABASE_URL=postgresql+asyncpg://user:pass@db:5432/mydb
+      - REDIS_URL=redis://redis:6379/0
+      - WORKER_ROLE=primary
+      - CLEANUP_INTERVAL_S=60           
+      - JOB_TTL_HOURS=0.033            
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  worker-cpu:
+    build:
+      context: .
+      target: worker
+    container_name: autogen_worker_cpu
+    volumes:
+      - .:/app  
+      - jobs_data:/app/jobs
+      - models_data:/app/models 
+    env_file:
+      - .env
+    environment:
+      - APP_ENV=development
+      - APP_NAME=autogen_worker_cpu
+      - PYTHONPATH=/app
+      - DATABASE_URL=postgresql+asyncpg://user:pass@db:5432/mydb
+      - REDIS_URL=redis://redis:6379/0
+      - WORKER_ROLE=cpu
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+    
+  db:
+    image: postgres:15-alpine
+    container_name: autogen_db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: mydb
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U user -d mydb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: autogen_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
+  jobs_data:
+  models_data:

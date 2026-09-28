@@ -1,0 +1,16 @@
+﻿    .app-header { border-bottom: 1px solid #1f2333; }
+    .app-sidebar { border-right: 1px solid #1f2333 !important; }
+    .fade-in {
+    animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(5px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }

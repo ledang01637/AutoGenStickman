@@ -1,0 +1,167 @@
+@layout SimpleLayout
+@page "/topup"
+
+<PageTitle>Nạp Credit | GenStickman</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Medium" Class="py-12">
+
+    @* ── HEADER ────────────────────────────────────────────────────────── *@
+    <div class="text-center mb-8">
+        <MudText Typo="Typo.h3" Class="fw-bold mb-2">
+            Nạp Credit
+        </MudText>
+        <MudText Typo="Typo.body1" Color="Color.Secondary" Class="d-flex align-center justify-center gap-2">
+            <MudIcon Icon="@Icons.Material.Filled.Bolt" Size="Size.Small" Color="Color.Warning" />
+            Sáng tạo không bị gián đoạn.
+            <MudIcon Icon="@Icons.Material.Filled.AllInclusive" Size="Size.Small" />
+            Credit không bao giờ hết hạn
+        </MudText>
+        <!-- <MudText Typo="Typo.body1" Color="Color.Secondary">
+            1 Credit = @CREDIT_PRICE_VND.ToString("N0")đ ·
+            <MudIcon Icon="@Icons.Material.Filled.AllInclusive" Size="Size.Small" Class="mx-1" />
+            Không có thời hạn sử dụng
+        </MudText> -->
+    </div>
+
+    @* ── PRESETS ───────────────────────────────────────────────────────── *@
+    <MudText Typo="Typo.h6" Class="fw-bold mb-4">
+        Chọn gói nạp nhanh
+    </MudText>
+
+    <MudGrid Spacing="3" Class="mb-8">
+        @foreach (var preset in Presets)
+        {
+            <MudItem xs="6" sm="4">
+                <MudPaper
+                    Elevation="@(IsPresetSelected(preset.Credits) ? 6 : 1)"
+                    Class="@GetPresetCardClass(preset)"
+                    @onclick="() => SelectPreset(preset.Credits)">
+
+                    @if (preset.IsPopular)
+                    {
+                        <MudChip
+                            T="string"
+                            Color="Color.Warning"
+                            Size="Size.Small"
+                            Class="topup-preset-badge">
+                            ⭐ HOT
+                        </MudChip>
+                    }
+
+                    <MudText Typo="Typo.h4" Class="fw-bold mt-2">
+                        @preset.Credits
+                    </MudText>
+                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">
+                        Credit
+                    </MudText>
+
+                    <MudText Typo="Typo.h6" Color="Color.Primary" Class="fw-bold">
+                        @($"{FormatPrice(GetPresetPrice(preset))}đ")
+                    </MudText>
+
+                    @if (!string.IsNullOrEmpty(preset.BadgeText))
+                    {
+                        <MudText Typo="Typo.caption" Color="Color.Success" Class="fw-bold mt-1">
+                            @preset.BadgeText
+                        </MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+
+    @* ── CUSTOM AMOUNT ─────────────────────────────────────────────────── *@
+    <MudPaper Elevation="0" Class="rounded-lg" Style="background-color: var(--mud-palette-background-grey)">
+        <MudText Typo="Typo.h6" Class="fw-bold mb-3">
+            Hoặc nhập số lượng tùy chỉnh
+        </MudText>
+
+        <MudGrid Spacing="3">
+            <MudItem xs="12" sm="6">
+                <MudNumericField
+                    T="int"
+                    @bind-Value="_customCredits"
+                    Label="Số credit"
+                    Variant="Variant.Outlined"
+                    Min="@MIN_CREDITS"
+                    Max="@MAX_CREDITS"
+                    Step="4"
+                    Immediate="true"
+                    Adornment="Adornment.End"
+                    AdornmentText="credit" />
+            </MudItem>
+
+            <MudItem xs="12" sm="6">
+                <MudText Typo="Typo.body2" Color="Color.Secondary">
+                    Tổng tiền:
+                </MudText>
+                <MudText Typo="Typo.h5" Color="Color.Primary" Class="fw-bold">
+                    @($"{FormatPrice(GetFinalPrice())}đ")
+                </MudText>
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-2 d-block">
+            Tối thiểu @MIN_CREDITS credit · Tối đa @MAX_CREDITS.ToString("N0") credit/lần
+        </MudText>
+    </MudPaper>
+
+    @* ── SUBMIT BUTTON ─────────────────────────────────────────────────── *@
+    <div class="mt-8 text-center">
+        <MudButton
+            Variant="Variant.Filled"
+            Color="Color.Primary"
+            Size="Size.Large"
+            Disabled="@(_isProcessing || !IsValidAmount())"
+            OnClick="TopupAsync"
+            StartIcon="@Icons.Material.Filled.AccountBalanceWallet"
+            Class="rounded-pill px-12 py-3 fw-bold">
+
+            @if (_isProcessing)
+            {
+                <MudProgressCircular Size="Size.Small" Indeterminate="true" Class="mr-2" />
+                <span>Đang xử lý...</span>
+            }
+            else
+            {
+                <span>Thanh toán @GetFinalCredits().ToString("N0") Credit (@($"{FormatPrice(GetFinalPrice())}đ"))</span>
+            }
+        </MudButton>
+
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-3 d-block">
+            Credit cộng tự động sau khi thanh toán thành công.
+        </MudText>
+    </div>
+
+</MudContainer>
+
+@* ── STYLES  ───────────────── *@
+<style>
+    .topup-preset-card {
+        transition: all 0.2s ease;
+        position: relative;
+        border: 2px solid transparent;
+    }
+
+    .topup-preset-card:hover {
+        transform: translateY(-2px);
+        border-color: var(--mud-palette-primary-lighten);
+    }
+
+    .topup-preset-selected {
+        border-color: var(--mud-palette-primary) !important;
+        background-color: var(--mud-palette-primary-hover);
+    }
+
+    .topup-preset-popular {
+        background: linear-gradient(135deg,
+            var(--mud-palette-warning-lighten) 0%,
+            var(--mud-palette-background) 100%);
+    }
+
+    .topup-preset-badge {
+        position: absolute;
+        top: -10px;
+        right: 8px;
+    }
+</style>

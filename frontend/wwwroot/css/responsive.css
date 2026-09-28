@@ -1,0 +1,75 @@
+/* File: wwwroot/css/responsive.css */
+
+/* =====================================================
+   responsive.css — GenStickmanStudio
+   Media queries và responsive overrides
+   ===================================================== */
+
+/* ---------- LAYOUT CORE ---------- */
+@media (min-width: 600px)  { .page-wrapper { padding: 1rem; } }
+@media (min-width: 960px)  { .page-wrapper { padding: 1.25rem 1.5rem; } }
+@media (min-width: 1280px) { .page-wrapper { padding: 1.5rem 2rem; } }
+
+/* ---------- USER MENU ---------- */
+@media (max-width: 599px) {
+    .user-menu-header { min-width: 190px; }
+}
+
+/* ---------- TYPOGRAPHY ---------- */
+@media (max-width: 599px) {
+    .mud-typography-h1 { font-size: 2rem !important; }
+    .mud-typography-h2 { font-size: 1.75rem !important; }
+    .mud-typography-h3 { font-size: 1.5rem !important; }
+    .mud-typography-h4 { font-size: 1.25rem !important; }
+    .mud-typography-h5 { font-size: 1.1rem !important; }
+    .mud-typography-h6 { font-size: 1rem !important; }
+}
+
+/* ---------- SCROLLBAR — mobile only ---------- */
+@media (max-width: 959px) {
+    * {
+        scrollbar-width: none !important;
+        -ms-overflow-style: none !important;
+    }
+
+    *::-webkit-scrollbar {
+        display: none !important;
+    }
+}
+
+/* ---------- UTILITY ---------- */
+@media (max-width: 599px) {
+    .btn-full-xs {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* ---------- DIALOG ---------- */
+@media (max-width: 599px) {
+    .mud-dialog {
+        margin: 8px;
+        max-width: calc(100vw - 16px);
+        width: calc(100vw - 16px);
+    }
+}
+
+/* ---------- SNACKBAR ---------- */
+@media (max-width: 599px) {
+    .mud-snackbar-location-bottom-right,
+    .mud-snackbar-location-bottom-left,
+    .mud-snackbar-location-bottom-center {
+        left: 8px;
+        right: 8px;
+        bottom: 8px;
+    }
+}
+
+/* ---------- REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .fade-in,
+    .saas-sidebar {
+        animation: none;
+        transition: none;
+    }
+}

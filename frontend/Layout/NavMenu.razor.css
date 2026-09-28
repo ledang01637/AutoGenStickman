@@ -1,0 +1,26 @@
+﻿
+.saas-appbar {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--mud-palette-divider) !important;
+    transition: background-color 0.3s ease;
+}
+
+.saas-sidebar {
+    border-right: 1px solid var(--mud-palette-divider) !important;
+}
+
+.theme-toggle-btn {
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.theme-toggle-btn:active {
+    transform: scale(0.85);
+}
+
+
+.saas-main-content {
+    padding-top: var(--mud-appbar-height);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}

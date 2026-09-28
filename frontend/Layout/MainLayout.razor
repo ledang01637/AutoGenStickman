@@ -1,0 +1,232 @@
+﻿@* File: Layout/MainLayout.razor *@
+
+@inherits LayoutComponentBase
+
+<MudThemeProvider IsDarkMode="@_isDarkMode" Theme="@_saasTheme" />
+<MudDialogProvider />
+<MudSnackbarProvider />
+<MudPopoverProvider />
+
+<CascadingValue Name="DrawerOpen" Value="@_drawerOpen">
+<CascadingValue Name="IsDesktop" Value="@_isDesktop">
+
+<MudLayout>
+
+    <MudAppBar Elevation="0" Class="saas-appbar px-2 px-sm-3">
+
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                    Color="Color.Inherit"
+                    Edge="Edge.Start"
+                    OnClick="@ToggleDrawer"
+                    aria-label="Toggle navigation menu" />
+
+        <div class="d-flex align-items-center gap-1 gap-sm-2 cursor-pointer ms-1 ms-sm-2"
+             @onclick="NavigateToHome">
+            <MudIcon Icon="@Icons.Material.Filled.SlowMotionVideo"
+                     Color="Color.Secondary"
+                     Size="Size.Medium" />
+            <MudText Typo="Typo.h6" Class="fw-bold mb-0 d-none d-sm-block">
+                GenStickman<span style="color: var(--mud-palette-primary);">Studio</span>
+            </MudText>
+        </div>
+
+        <MudSpacer />
+
+        <div class="d-flex align-items-center gap-1 gap-sm-2">
+
+            <MudChip T="string"
+                     Color="Color.Secondary"
+                     Variant="Variant.Outlined"
+                     Size="Size.Small"
+                     Icon="@Icons.Material.Filled.Toll"
+                     Class="fw-bold d-none d-sm-inline-flex">
+                @(_appState.IsLoggedIn && _appState.CurrentUser != null
+                    ? _appState.CurrentUser.Credit : 0) Credits
+            </MudChip>
+
+            <MudIconButton Icon="@(_isDarkMode
+                               ? Icons.Material.Filled.LightMode
+                               : Icons.Material.Filled.DarkMode)"
+                           Color="Color.Inherit"
+                           OnClick="@ToggleThemeAsync"
+                           Size="Size.Small"
+                           aria-label="@(_isDarkMode ? "Switch to light mode" : "Switch to dark mode")" />
+
+            @if (_appState.IsLoggedIn && _appState.CurrentUser != null)
+            {
+                <MudChip T="string"
+                         Color="Color.Secondary"
+                         Variant="Variant.Outlined"
+                         Size="Size.Small"
+                         Icon="@Icons.Material.Filled.Toll"
+                         Class="d-inline-flex d-sm-none fw-bold"
+                         Style="padding: 0 6px; height: 28px; font-size: 0.7rem;">
+                    @_appState.CurrentUser.Credit
+                </MudChip>
+
+                <MudMenu AnchorOrigin="Origin.BottomRight"
+                         TransformOrigin="Origin.TopRight">
+                    <ActivatorContent>
+                        <div @onclick="@context.ToggleAsync"
+                             class="cursor-pointer"
+                             role="button"
+                             tabindex="0"
+                             aria-label="Open user menu">
+                            <MudAvatar Color="Color.Primary"
+                                       Size="Size.Small"
+                                       Style="border: 2px solid var(--mud-palette-success);">
+                                <MudImage Src="@(_appState.CurrentUser.AvatarUrl
+                                              ?? "https://avatars.githubusercontent.com/u/1?v=4")"
+                                          Alt="User avatar" />
+                            </MudAvatar>
+                        </div>
+                    </ActivatorContent>
+                    <ChildContent>
+                        <div class="px-4 py-3" style="min-width: 220px;">
+                            <MudStack Row="true" AlignItems="AlignItems.Center" Spacing="2">
+                                <MudAvatar Size="Size.Medium">
+                                    <MudImage Src="@(_appState.CurrentUser.AvatarUrl
+                                                  ?? "https://avatars.githubusercontent.com/u/1?v=4")"
+                                              Alt="User avatar" />
+                                </MudAvatar>
+                                <MudStack Spacing="0">
+                                    <MudText Typo="Typo.body1" Class="fw-bold">
+                                        @(_appState.CurrentUser.FullName ?? "User Name")
+                                    </MudText>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                        @(_appState.CurrentUser.Email ?? "user@gmail.com")
+                                    </MudText>
+                                </MudStack>
+                            </MudStack>
+                            <MudStack Row="true" Spacing="2" Class="mt-3">
+                                <MudChip T="string"
+                                         Variant="Variant.Filled"
+                                         Size="Size.Small"
+                                         Style="background-color: #94a3b8; color: white;"
+                                         Class="fw-bold">
+                                    @(_appState.CurrentUser.Plan ?? "Free")
+                                </MudChip>
+                                <MudChip T="string"
+                                         Variant="Variant.Filled"
+                                         Color="Color.Success"
+                                         Size="Size.Small"
+                                         Icon="@Icons.Material.Filled.AutoAwesome"
+                                         Class="fw-bold">
+                                    @_appState.CurrentUser.Credit
+                                </MudChip>
+                            </MudStack>
+                        </div>
+                        <MudDivider />
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Person"
+                                     IconColor="Color.Default">
+                            <MudText Typo="Typo.body2">Hồ sơ</MudText>
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Outlined.StarBorder"
+                                     IconColor="Color.Default"
+                                     Href="/pricing">
+                            <MudText Typo="Typo.body2">Nâng cấp</MudText>
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Outlined.AddCard"
+                                     IconColor="Color.Default"
+                                     Href="/topup">
+                            <MudText Typo="Typo.body2">Nạp thêm</MudText>
+                        </MudMenuItem>
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Settings"
+                                     IconColor="Color.Default">
+                            <MudText Typo="Typo.body2">Cài đặt</MudText>
+                        </MudMenuItem>
+                        <MudDivider Class="my-1" />
+                        <MudMenuItem Icon="@Icons.Material.Filled.Logout"
+                                     IconColor="Color.Error"
+                                     OnClick="HandleLogoutAsync">
+                            <MudText Typo="Typo.body2" Color="Color.Error">Đăng xuất</MudText>
+                        </MudMenuItem>
+                    </ChildContent>
+                </MudMenu>
+            }
+            else
+            {
+                <MudButton Href="/login"
+                           Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           DropShadow="false"
+                           Size="Size.Small"
+                           Class="rounded-pill fw-bold d-none d-sm-inline-flex">
+                    Đăng nhập
+                </MudButton>
+                <MudIconButton Href="/login"
+                               Icon="@Icons.Material.Filled.Login"
+                               Color="Color.Primary"
+                               Size="Size.Small"
+                               Class="d-inline-flex d-sm-none"
+                               aria-label="Đăng nhập" />
+            }
+        </div>
+    </MudAppBar>
+
+    @* DESKTOP >= 960px: Mini drawer, icon-only, hover mở rộng *@
+    @if (_isDesktop)
+    {
+        <MudDrawer @bind-Open="@_drawerOpen"
+                   Variant="DrawerVariant.Mini"
+                   Breakpoint="Breakpoint.None"
+                   OpenMiniOnHover="true"
+                   Elevation="1"
+                   ClipMode="DrawerClipMode.Always"
+                   Class="saas-sidebar">
+            <NavMenu />
+        </MudDrawer>
+    }
+    else
+    {
+        <MudDrawer @bind-Open="@_drawerOpen"
+                Variant="DrawerVariant.Temporary"
+                Elevation="4"
+                ClipMode="DrawerClipMode.Never"
+                Width="100%"
+                Class="saas-sidebar saas-sidebar--mobile">
+            <MudDrawerHeader Style="padding: 12px 16px;">
+                <div class="d-flex align-items-center justify-content-between w-100">
+                    <div class="d-flex align-items-center gap-2">
+                        <MudIcon Icon="@Icons.Material.Filled.SlowMotionVideo"
+                                Color="Color.Secondary" />
+                        <MudText Typo="Typo.h6" Class="fw-bold mb-0">
+                            GenStickman<span style="color: var(--mud-palette-primary);">Studio</span>
+                        </MudText>
+                    </div>
+                    <MudIconButton Icon="@Icons.Material.Filled.Close"
+                        Color="Color.Inherit"
+                        Size="Size.Small"
+                        OnClick="@ToggleDrawer"
+                        aria-label="Close menu" />
+                </div>
+            </MudDrawerHeader>
+            <NavMenu />
+        </MudDrawer>
+    }
+
+    <MudMainContent Class="saas-main-content">
+        <div class="page-wrapper">
+            @if (_isThemeLoaded)
+            {
+                <div class="fade-in page-content">
+                    @Body
+                </div>
+            }
+            else
+            {
+                <div class="d-flex justify-content-center align-items-center"
+                     style="height: 60vh;">
+                    <MudProgressCircular Color="Color.Primary"
+                                         Indeterminate="true"
+                                         Size="Size.Large" />
+                </div>
+            }
+            <Footer />
+        </div>
+    </MudMainContent>
+
+</MudLayout>
+
+</CascadingValue>
+</CascadingValue>

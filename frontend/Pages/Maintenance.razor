@@ -1,0 +1,40 @@
+@layout EmptyLayout 
+@page "/maintenance"
+
+<div class="d-flex align-center justify-center" style="min-height: 100vh; background-color: var(--mud-palette-background);">
+    <MudPaper Elevation="8" Class="pa-8 rounded-xl mx-4" Style="width: 100%; max-width: 480px; border: 1px solid var(--mud-palette-divider);">
+        
+        @* ── ICON & TITLE ── *@
+        <div class="d-flex flex-column align-center">
+            <MudPaper Elevation="4" Class="d-flex align-center justify-center pa-4 rounded-lg mb-4" Style="background: linear-gradient(135deg, var(--mud-palette-warning), var(--mud-palette-warning-darken));">
+                <MudIcon Icon="@Icons.Material.Filled.Engineering" Style="font-size: 3rem; color: white;" />
+            </MudPaper>
+            
+            <MudText Typo="Typo.h5" Class="fw-bolder mb-1" Align="Align.Center">
+                Hệ Thống Đang Bảo Trì
+            </MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary" Align="Align.Center" Class="mb-4">
+                Chúng tôi đang tiến hành nâng cấp máy chủ để mang lại tốc độ render video nhanh hơn.
+            </MudText>
+        </div>
+
+        @* ── PROGRESS / STATUS ── *@
+        <MudPaper Elevation="0" Outlined="true" Class="pa-4 rounded-lg mb-6" Style="background-color: var(--mud-palette-background-grey);">
+            <div class="d-flex align-center gap-3">
+                <MudProgressCircular Color="Color.Warning" Indeterminate="true" Size="Size.Small" />
+                <MudText Typo="Typo.body2" Class="fw-medium">Tiến trình nâng cấp đang diễn ra...</MudText>
+            </div>
+        </MudPaper>
+
+        <MudDivider Class="mb-6" />
+
+        @* ── ACTION ── *@
+        <MudText Typo="Typo.caption" Color="Color.Secondary" Align="Align.Center" Class="d-block mb-4">
+            Vui lòng quay lại sau ít phút. Xin lỗi vì sự bất tiện này!
+        </MudText>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" Size="Size.Large" Class="rounded-lg w-100 fw-bold" StartIcon="@Icons.Material.Filled.Refresh" OnClick="@(() => { /* Gọi JS reload trang */ })">
+            Tải Lại Trang
+        </MudButton>
+
+    </MudPaper>
+</div>

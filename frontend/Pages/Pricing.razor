@@ -1,0 +1,164 @@
+@layout SimpleLayout
+@page "/pricing"
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="pt-10 pb-16">
+    @* ════════════════════════════════════════════════════════════
+       1. HERO SECTION
+       ════════════════════════════════════════════════════════════ *@
+    <div class="d-flex flex-column align-center text-center mb-12">
+        <MudText Typo="Typo.h3" Class="fw-bold mb-3">Nâng cấp tài khoản của bạn</MudText>
+        <MudText Typo="Typo.subtitle1" Color="Color.Secondary" Style="max-width: 600px;">
+            Trải nghiệm toàn bộ sức mạnh của AI. Hỗ trợ bạn tạo kịch bản, tạo ảnh, lòng tiếng video. 
+        </MudText>
+
+        @* TOGGLE: THÁNG / NĂM *@
+        <div class="mt-8 d-flex align-center gap-3">
+            <MudText Typo="Typo.body1" Color="@(!_isYearly ? Color.Primary : Color.Secondary)" Class="fw-bold">
+                Hàng tháng (Không tự gia hạn)
+            </MudText>
+        </div>
+    </div>
+
+    @* ════════════════════════════════════════════════════════════
+       2. PRICING CARDS GRID
+       ════════════════════════════════════════════════════════════ *@
+    <MudGrid Spacing="4" Justify="Justify.Center">
+        @foreach (var plan in Plans)
+        {
+            <MudItem xs="12" sm="8" md="4">
+                <MudPaper Style="position: relative;" Elevation="@(plan.IsPro ? 4 : 0)"
+                          Class="@GetCardClass(plan)">
+
+                    @if (plan.IsPro)
+                    {
+                        <div class="popular-badge">Phổ biến nhất</div>
+                    }
+
+                    <MudText Typo="Typo.h5"
+                             Color="@GetTitleColor(plan)"
+                             Class="fw-bold mb-2">
+                        @plan.Name
+                    </MudText>
+                    @*<MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-6">
+                        @plan.Description
+                    </MudText>*@
+
+                    <div class="mb-6 @(plan.IsFree ? "" : "d-flex align-end")">
+                        @if (plan.IsFree)
+                        {
+                            <MudText Typo="Typo.h4" Class="fw-bold d-inline">Miễn phí</MudText>
+                        }
+                        else
+                        {
+                            <MudText Typo="Typo.h4" Class="fw-bold">@FormatPrice(GetDisplayPrice(plan))</MudText>
+                            <MudText Typo="Typo.body1" Color="Color.Secondary" Class="mb-2 ml-1">/tháng</MudText>
+                        }
+                    </div>
+
+                    <div class="d-flex flex-column gap-3 mb-6">
+                        @foreach (var feature in plan.Features)
+                        {
+                            @RenderFeature(feature.Text, feature.IsIncluded)
+                        }
+                    </div>
+
+                    @if (plan.IsFree)
+                    {
+                        <MudButton Variant="Variant.Outlined"
+                                   Color="Color.Default"
+                                   FullWidth="true"
+                                   Class="mt-auto rounded-lg py-2"
+                                   Disabled="true">
+                            @(IsCurrentPlan(plan.PlanCode) ? "Đang sử dụng" : "Gói mặc định")
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton Variant="@GetButtonVariant(plan)"
+                                   Color="@GetButtonColor(plan)"
+                                   FullWidth="true"
+                                   Class="@GetButtonClass(plan)"
+                                   Disabled="@(IsCurrentPlan(plan.PlanCode) || _isSubscribing)"
+                                   OnClick="@(() => SubscribeAsync(plan.Id, plan.PlanCode, plan.Name))">
+                            @(IsCurrentPlan(plan.PlanCode) ? "Đang sử dụng" : GetButtonText(plan))
+                        </MudButton>
+                    }
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+
+    @* ════════════════════════════════════════════════════════════
+       3. PROMO CARD (TRIAL PACKAGE)
+       ════════════════════════════════════════════════════════════ *@
+    <MudPaper Elevation="2" Class="promo-card pa-4 pa-md-8 mt-12 position-relative overflow-hidden">
+        <div class="promo-ribbon">@PlanTrial.Name</div>
+
+        <MudGrid>
+            <MudItem xs="12" md="6" Class="d-flex flex-column justify-center">
+                <div class="d-flex align-center gap-2 mb-1">
+                    <MudIcon Icon="@Icons.Material.Filled.AutoAwesome" Color="Color.Primary" Size="Size.Medium" />
+                    <MudText Typo="Typo.h5" Color="Color.Primary" Class="fw-bold">Gói Pro Tuần</MudText>
+                </div>
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-4">
+                    @PlanTrial.Description
+                </MudText>
+
+                <div class="d-flex align-end gap-2 mb-4">
+                    <MudText Typo="Typo.h4" Class="fw-bold lh-1">@FormatPrice(PlanTrial.MonthlyPrice) đ</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary" Class="mb-1">/7 ngày</MudText>
+                </div>
+
+                <div>
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="Color.Primary" Class="rounded-pill px-3 fw-bold">
+                        <MudIcon Icon="@Icons.Material.Filled.Stars" Size="Size.Small" Class="mr-1" />
+                        @PlanTrial.MonthlyCredits Credits sử dụng trong 7 ngày
+                    </MudChip>
+                </div>
+            </MudItem>
+
+            <MudItem xs="12" md="6" Class="d-flex flex-column justify-center align-end">
+                <div class="w-100" style="max-width: 400px;">
+                    <MudText Typo="Typo.body1" Class="fw-bold mb-3">
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Primary" Size="Size.Small" Class="mr-1" />
+                        Truy cập đầy đủ tính năng Pro
+                    </MudText>
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               FullWidth="true"
+                               Class="rounded-lg py-3 fw-bold shadow-none text-capitalize"
+                               Disabled="@(IsCurrentPlan(PlanTrial.PlanCode) || IsCurrentPlan("PRO") || IsCurrentPlan("ULTRA") || _isSubscribing)"
+                               OnClick="@(() => SubscribeAsync(PlanTrial.Id, PlanTrial.PlanCode, PlanTrial.Name))">
+                        @GetTrialButtonText()
+                    </MudButton>
+                </div>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+
+</MudContainer>
+
+@code {
+    private RenderFragment RenderFeature(string text, bool isIncluded = true) => __builder =>
+    {
+        <div class="d-flex align-center gap-3">
+            @if (isIncluded)
+            {
+                <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Color="Color.Success" Size="Size.Small" />
+                <MudText Typo="Typo.body2">@text</MudText>
+            }
+            else
+            {
+                <MudIcon Icon="@Icons.Material.Filled.Cancel" Color="Color.Default" Size="Size.Small" Style="opacity: 0.3;" />
+                <MudText Typo="Typo.body2" Color="Color.Secondary" Style="opacity: 0.5;">@text</MudText>
+            }
+        </div>
+    };
+
+    private string GetTrialButtonText()
+    {
+        if (IsCurrentPlan(PlanTrial.PlanCode)) return "Đang dùng thử";
+        if (IsCurrentPlan("PRO") || IsCurrentPlan("ULTRA")) return "Đã có gói cao hơn";
+        return "Trải nghiệm ngay";
+    }
+}
